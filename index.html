@@ -184,6 +184,18 @@ nav { flex: 1; padding: 8px 0; }
 }
 .topbar-title { font-size: 1.1rem; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--green-800); flex: 1; }
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
+.topbar-back {
+  display: none;
+  align-items: center; gap: 4px;
+  background: none; border: 1.5px solid var(--brown-200);
+  border-radius: var(--radius-sm);
+  padding: 4px 10px; font-size: .78rem; font-weight: 600;
+  color: var(--brown-700); cursor: pointer; flex-shrink: 0;
+  transition: var(--transition); touch-action: manipulation;
+  white-space: nowrap;
+}
+.topbar-back:hover { background: var(--brown-100); border-color: var(--brown-400); color: var(--brown-900); }
+.topbar-back.visible { display: inline-flex; }
 .content-area { flex: 1; padding: 24px; max-width: 1200px; width: 100%; }
 
 /* ============================================================
@@ -694,6 +706,7 @@ canvas { max-width: 100%; }
   <main id="main">
     <header class="topbar">
       <button class="topbar-toggle" id="sidebar-toggle">☰</button>
+      <button class="topbar-back" id="topbar-back">◀ Back</button>
       <div class="topbar-title" id="page-title">Dashboard</div>
       <div class="topbar-actions" id="topbar-actions"></div>
     </header>
@@ -757,7 +770,8 @@ const State = {
   isConnected: false,
   currentPage: 'dashboard',
   currentGroupId: null,
-  productHistory: [],   // for combobox memory
+  pageHistory: [],        // back-button navigation stack
+  productHistory: [],     // for combobox memory
 
   get activeAnimals() {
     return this.animals.filter(a => a.status === 'active');
@@ -1125,11 +1139,15 @@ function updateSidebarMeta() {
 /* =============================================================
    EVENTS
    ============================================================= */
+let _eventsReady = false;
 function setupGlobalEvents() {
+  if (_eventsReady) return;   // prevent duplicate listeners on re-init
+  _eventsReady = true;
   // Nav
   document.querySelectorAll('.nav-item').forEach(el => {
     el.addEventListener('click', () => {
       State.currentGroupId = null;
+      State.pageHistory = [];   // top-level nav clears back stack
       navigateTo(el.dataset.page);
     });
   });
@@ -1137,6 +1155,9 @@ function setupGlobalEvents() {
   // Sidebar toggle
   document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
   document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+
+  // Back button
+  document.getElementById('topbar-back').addEventListener('click', navigateBack);
 
   // Modal close
   document.getElementById('modal-close').addEventListener('click', Modal.close);
@@ -1180,15 +1201,49 @@ function closeSidebar() {
   document.getElementById('sidebar-overlay').style.display = 'none';
 }
 
+// Sync sidebar state when crossing the mobile/desktop breakpoint
+window.addEventListener('resize', () => {
+  const sb = document.getElementById('sidebar');
+  if (!sb) return;
+  if (window.innerWidth > 768) {
+    // Switching to desktop: clear mobile-open and ensure overlay is hidden
+    sb.classList.remove('mobile-open');
+    document.getElementById('sidebar-overlay').style.display = 'none';
+  } else {
+    // Switching to mobile: clear desktop collapsed state so toggle works cleanly
+    sb.classList.remove('collapsed');
+    document.getElementById('main').classList.remove('expanded');
+  }
+});
+
 /* =============================================================
    ROUTER
    ============================================================= */
-function navigateTo(page) {
+function navigateTo(page, opts = {}) {
+  // Push current position to history unless this is a back-navigation
+  if (!opts.isBack && State.currentPage) {
+    State.pageHistory.push({ page: State.currentPage, groupId: State.currentGroupId });
+    if (State.pageHistory.length > 20) State.pageHistory.shift();
+  }
+
   State.currentPage = page;
+  if (!opts.keepGroup) State.currentGroupId = opts.groupId || null;
+
   document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
   const titles = { dashboard:'📊 Dashboard', groups:'🐄 Groups & Animals', inputs:'💊 Supply Log', revenue:'💰 Revenue & Sales', reports:'📈 Reports & Analytics', settings:'⚙️ Settings' };
   document.getElementById('page-title').textContent = titles[page] || page;
   document.getElementById('topbar-actions').innerHTML = '';
+
+  // Show back button on every page except dashboard (or when no history)
+  const backBtn = document.getElementById('topbar-back');
+  if (backBtn) {
+    if (page === 'dashboard' || State.pageHistory.length === 0) {
+      backBtn.classList.remove('visible');
+    } else {
+      backBtn.classList.add('visible');
+    }
+  }
+
   closeSidebar();
 
   const area = document.getElementById('content-area');
@@ -1203,6 +1258,13 @@ function navigateTo(page) {
     case 'reports':   renderReportsPage(); break;
     case 'settings':  renderSettingsPage(); break;
   }
+}
+
+function navigateBack() {
+  if (State.pageHistory.length === 0) { navigateTo('dashboard', { isBack: true }); return; }
+  const prev = State.pageHistory.pop();
+  State.currentGroupId = prev.groupId || null;
+  navigateTo(prev.page, { isBack: true, keepGroup: true });
 }
 
 /* =============================================================
@@ -1472,7 +1534,7 @@ function renderGroupDetail(groupId) {
     </div>
   `;
 
-  document.getElementById('bc-back').addEventListener('click', () => { State.currentGroupId=null; renderGroupsPage(); });
+  document.getElementById('bc-back').addEventListener('click', () => { State.currentGroupId=null; navigateBack(); });
   document.getElementById('gd-add-animal').addEventListener('click', () => showAddAnimalModal(groupId));
 
   const tbody = document.getElementById('group-animals-tbody');
