@@ -1,0 +1,2869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LivestockPro — Farm Business Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   CSS VARIABLES & RESET
+   ============================================================ */
+:root {
+  --green-900: #1a3009;
+  --green-800: #2D5016;
+  --green-700: #3a6b1e;
+  --green-600: #4a8826;
+  --green-500: #5ea830;
+  --green-100: #e8f5e0;
+  --green-50:  #f3faf0;
+  --amber-600: #b8860b;
+  --amber-500: #D4A017;
+  --amber-400: #e6b830;
+  --amber-100: #fdf3cc;
+  --amber-50:  #fffae8;
+  --cream:     #FAF7F0;
+  --brown-900: #2c1a0e;
+  --brown-700: #4a2e1a;
+  --brown-400: #8b6347;
+  --brown-200: #d4b896;
+  --brown-100: #f0e4d4;
+  --red-600:   #c0392b;
+  --red-100:   #fdecea;
+  --blue-600:  #2563eb;
+  --blue-100:  #dbeafe;
+  --white:     #ffffff;
+  --shadow-sm: 0 1px 3px rgba(44,26,14,.08), 0 1px 2px rgba(44,26,14,.06);
+  --shadow-md: 0 4px 12px rgba(44,26,14,.10), 0 2px 6px rgba(44,26,14,.06);
+  --shadow-lg: 0 10px 30px rgba(44,26,14,.12), 0 4px 12px rgba(44,26,14,.08);
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --sidebar-w: 240px;
+  --transition: 0.2s cubic-bezier(.4,0,.2,1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 15px; scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  color: var(--brown-900);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+h1,h2,h3,h4 { font-family: 'Playfair Display', serif; }
+a { color: inherit; text-decoration: none; }
+button { cursor: pointer; font-family: inherit; }
+input, select, textarea { font-family: inherit; }
+img { max-width: 100%; }
+
+/* ============================================================
+   SPLASH SCREEN
+   ============================================================ */
+#splash {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--green-800);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 24px;
+  transition: opacity 0.5s, visibility 0.5s;
+}
+#splash.hidden { opacity: 0; visibility: hidden; }
+.splash-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem; font-weight: 800;
+  color: var(--white);
+  letter-spacing: -1px;
+}
+.splash-logo span { color: var(--amber-400); }
+.splash-tagline { color: var(--green-100); font-size: .95rem; letter-spacing: .05em; }
+.splash-status {
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(255,255,255,.1); border-radius: 50px;
+  padding: 10px 22px; color: var(--white); font-size: .9rem;
+}
+.splash-spinner {
+  width: 18px; height: 18px;
+  border: 2px solid rgba(255,255,255,.3);
+  border-top-color: var(--amber-400);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+.splash-btn-row { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.splash-btn {
+  padding: 10px 24px; border-radius: 50px; border: none;
+  font-size: .9rem; font-weight: 600; letter-spacing: .02em;
+  transition: var(--transition);
+}
+.splash-btn.primary { background: var(--amber-500); color: var(--brown-900); }
+.splash-btn.primary:hover { background: var(--amber-400); }
+.splash-btn.secondary { background: rgba(255,255,255,.15); color: var(--white); border: 1px solid rgba(255,255,255,.3); }
+.splash-btn.secondary:hover { background: rgba(255,255,255,.25); }
+
+/* ============================================================
+   APP SHELL
+   ============================================================ */
+#app { display: flex; min-height: 100vh; }
+#app.hidden { display: none; }
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+#sidebar {
+  width: var(--sidebar-w);
+  background: var(--green-800);
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+  transition: transform var(--transition);
+  overflow-y: auto;
+}
+#sidebar.collapsed { transform: translateX(calc(-1 * var(--sidebar-w))); }
+.sidebar-brand {
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(255,255,255,.1);
+}
+.sidebar-brand h1 {
+  font-size: 1.25rem; color: var(--white); font-weight: 700;
+  letter-spacing: -.5px;
+}
+.sidebar-brand h1 span { color: var(--amber-400); }
+.sidebar-brand p { font-size: .72rem; color: var(--green-100); margin-top: 2px; }
+.sidebar-conn {
+  padding: 8px 18px;
+  font-size: .72rem; font-weight: 500;
+  display: flex; align-items: center; gap: 6px;
+}
+.conn-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: #6ee7b7; box-shadow: 0 0 6px #6ee7b7;
+  flex-shrink: 0;
+}
+.conn-dot.offline { background: #f87171; box-shadow: 0 0 6px #f87171; }
+.conn-dot.demo { background: var(--amber-400); box-shadow: 0 0 6px var(--amber-400); }
+
+nav { flex: 1; padding: 8px 0; }
+.nav-section { padding: 8px 18px 4px; font-size: .68rem; font-weight: 600; color: var(--green-100); opacity: .6; letter-spacing: .1em; text-transform: uppercase; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 18px; color: rgba(255,255,255,.75);
+  font-size: .88rem; font-weight: 500;
+  cursor: pointer; transition: var(--transition);
+  border-left: 3px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { color: var(--white); background: rgba(255,255,255,.07); }
+.nav-item.active { color: var(--amber-400); border-left-color: var(--amber-400); background: rgba(212,160,23,.1); }
+.nav-item .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; }
+.sidebar-footer { padding: 14px 18px; border-top: 1px solid rgba(255,255,255,.1); }
+.sidebar-biz { font-size: .82rem; font-weight: 600; color: var(--white); }
+.sidebar-owner { font-size: .72rem; color: var(--green-100); opacity: .7; }
+
+/* ============================================================
+   MAIN CONTENT
+   ============================================================ */
+#main {
+  margin-left: var(--sidebar-w);
+  flex: 1; min-height: 100vh;
+  display: flex; flex-direction: column;
+  transition: margin-left var(--transition);
+}
+#main.expanded { margin-left: 0; }
+.topbar {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(250,247,240,.92); backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--brown-100);
+  padding: 12px 24px;
+  display: flex; align-items: center; gap: 14px;
+}
+.topbar-toggle {
+  background: none; border: none;
+  font-size: 1.2rem; padding: 4px; color: var(--brown-700);
+  display: none;
+}
+.topbar-title { font-size: 1.1rem; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--green-800); flex: 1; }
+.topbar-actions { display: flex; gap: 8px; align-items: center; }
+.content-area { flex: 1; padding: 24px; max-width: 1200px; width: 100%; }
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: var(--radius-sm);
+  border: none; font-size: .875rem; font-weight: 600;
+  transition: var(--transition); cursor: pointer;
+}
+.btn-primary { background: var(--green-800); color: var(--white); }
+.btn-primary:hover { background: var(--green-700); }
+.btn-amber { background: var(--amber-500); color: var(--brown-900); }
+.btn-amber:hover { background: var(--amber-400); }
+.btn-outline { background: transparent; color: var(--green-800); border: 1.5px solid var(--green-800); }
+.btn-outline:hover { background: var(--green-50); }
+.btn-ghost { background: transparent; color: var(--brown-700); border: 1.5px solid var(--brown-200); }
+.btn-ghost:hover { background: var(--brown-100); }
+.btn-danger { background: var(--red-100); color: var(--red-600); border: 1.5px solid #f5c6c0; }
+.btn-danger:hover { background: #fbd5d0; }
+.btn-sm { padding: 5px 12px; font-size: .8rem; }
+.btn-icon { padding: 7px; background: transparent; border: none; color: var(--brown-400); border-radius: var(--radius-sm); transition: var(--transition); }
+.btn-icon:hover { background: var(--brown-100); color: var(--brown-700); }
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+.card {
+  background: var(--white); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm); border: 1px solid var(--brown-100);
+  overflow: hidden;
+}
+.card-header {
+  padding: 16px 20px; border-bottom: 1px solid var(--brown-100);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.card-title { font-size: 1rem; font-weight: 700; color: var(--green-800); }
+.card-body { padding: 20px; }
+
+/* ============================================================
+   STAT CARDS
+   ============================================================ */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
+.stat-card {
+  background: var(--white); border-radius: var(--radius-md);
+  padding: 18px 20px; border: 1px solid var(--brown-100);
+  box-shadow: var(--shadow-sm);
+  display: flex; flex-direction: column; gap: 8px;
+}
+.stat-card .stat-icon { font-size: 1.5rem; }
+.stat-card .stat-label { font-size: .75rem; color: var(--brown-400); font-weight: 600; text-transform: uppercase; letter-spacing: .06em; }
+.stat-card .stat-value { font-size: 1.7rem; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--green-800); }
+.stat-card .stat-sub { font-size: .78rem; color: var(--brown-400); }
+.stat-card.accent-amber { border-left: 4px solid var(--amber-500); }
+.stat-card.accent-green { border-left: 4px solid var(--green-600); }
+.stat-card.accent-blue  { border-left: 4px solid var(--blue-600); }
+.stat-card.accent-red   { border-left: 4px solid var(--red-600); }
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: .875rem; }
+thead th {
+  background: var(--green-50); color: var(--green-800);
+  font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .04em;
+  padding: 10px 14px; text-align: left; border-bottom: 2px solid var(--green-100);
+  white-space: nowrap; position: sticky; top: 0;
+}
+tbody tr { border-bottom: 1px solid var(--brown-100); transition: var(--transition); }
+tbody tr:hover { background: var(--green-50); }
+tbody tr:last-child { border-bottom: none; }
+tbody td { padding: 10px 14px; vertical-align: middle; }
+tbody tr.row-green { background: #f0fdf4; }
+tbody tr.row-yellow { background: #fefce8; }
+tbody tr.row-red { background: #fff0f0; }
+.tfoot-total td { font-weight: 700; background: var(--amber-50); border-top: 2px solid var(--amber-200, #f0d46a); color: var(--green-800); }
+
+/* ============================================================
+   BADGES
+   ============================================================ */
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 9px; border-radius: 50px; font-size: .72rem; font-weight: 600;
+}
+.badge-green  { background: var(--green-100); color: var(--green-700); }
+.badge-amber  { background: var(--amber-100); color: var(--amber-600); }
+.badge-red    { background: var(--red-100);   color: var(--red-600); }
+.badge-blue   { background: var(--blue-100);  color: var(--blue-600); }
+.badge-gray   { background: var(--brown-100); color: var(--brown-700); }
+
+/* ============================================================
+   FORMS
+   ============================================================ */
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: .8rem; font-weight: 600; color: var(--brown-700); }
+.form-control {
+  padding: 9px 12px; border: 1.5px solid var(--brown-200);
+  border-radius: var(--radius-sm); font-size: .875rem;
+  background: var(--white); color: var(--brown-900);
+  transition: var(--transition); outline: none;
+  width: 100%;
+}
+.form-control:focus { border-color: var(--green-600); box-shadow: 0 0 0 3px rgba(45,80,22,.12); }
+.form-control:disabled { background: var(--brown-100); color: var(--brown-400); cursor: not-allowed; }
+.form-hint { font-size: .72rem; color: var(--brown-400); }
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+.form-computed {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--green-50); border: 1px solid var(--green-100);
+  border-radius: var(--radius-sm); padding: 7px 12px; font-size: .8rem;
+  color: var(--green-700); font-weight: 600;
+}
+
+/* Segmented buttons */
+.seg-btn-group { display: flex; border: 1.5px solid var(--brown-200); border-radius: var(--radius-sm); overflow: hidden; }
+.seg-btn { flex: 1; padding: 8px 10px; border: none; background: var(--white); font-size: .8rem; font-weight: 500; color: var(--brown-700); transition: var(--transition); cursor: pointer; }
+.seg-btn:not(:last-child) { border-right: 1px solid var(--brown-200); }
+.seg-btn.active { background: var(--green-800); color: var(--white); font-weight: 600; }
+
+/* ============================================================
+   MODALS
+   ============================================================ */
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 500;
+  background: rgba(26,48,9,.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  opacity: 0; visibility: hidden; transition: var(--transition);
+}
+.modal-backdrop.open { opacity: 1; visibility: visible; }
+.modal-box {
+  background: var(--white); border-radius: var(--radius-lg);
+  width: 100%; max-width: 600px; max-height: 90vh;
+  overflow-y: auto; box-shadow: var(--shadow-lg);
+  transform: scale(.96) translateY(8px);
+  transition: transform var(--transition);
+}
+.modal-backdrop.open .modal-box { transform: scale(1) translateY(0); }
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--brown-100);
+  position: sticky; top: 0; background: var(--white); z-index: 1;
+}
+.modal-title { font-size: 1.1rem; font-weight: 700; color: var(--green-800); }
+.modal-close { background: none; border: none; font-size: 1.3rem; color: var(--brown-400); cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: var(--transition); }
+.modal-close:hover { background: var(--brown-100); color: var(--brown-700); }
+.modal-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
+.modal-footer { padding: 16px 22px; border-top: 1px solid var(--brown-100); display: flex; gap: 10px; justify-content: flex-end; background: var(--cream); }
+
+/* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+#toast-container {
+  position: fixed; bottom: 24px; right: 24px; z-index: 9000;
+  display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+}
+.toast {
+  background: var(--white); border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg); border: 1px solid var(--brown-100);
+  padding: 12px 18px; font-size: .875rem; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  min-width: 260px; max-width: 360px;
+  animation: toastIn .3s ease forwards;
+  pointer-events: auto;
+}
+.toast.success { border-left: 4px solid var(--green-600); }
+.toast.error   { border-left: 4px solid var(--red-600); }
+.toast.info    { border-left: 4px solid var(--blue-600); }
+.toast.warning { border-left: 4px solid var(--amber-500); }
+.toast-icon { font-size: 1.1rem; }
+.toast.removing { animation: toastOut .3s ease forwards; }
+
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(20px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ============================================================
+   MULTI-CHECKBOX DROPDOWN (RECIPIENT SELECTOR)
+   ============================================================ */
+.multi-select-wrap { position: relative; }
+.multi-select-trigger {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 12px; border: 1.5px solid var(--brown-200);
+  border-radius: var(--radius-sm); background: var(--white);
+  cursor: pointer; font-size: .875rem; transition: var(--transition);
+  user-select: none;
+}
+.multi-select-trigger:focus-within, .multi-select-trigger.open { border-color: var(--green-600); box-shadow: 0 0 0 3px rgba(45,80,22,.12); }
+.multi-select-panel {
+  position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 200;
+  background: var(--white); border: 1.5px solid var(--brown-200);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+  max-height: 240px; overflow-y: auto;
+  display: none;
+}
+.multi-select-panel.open { display: block; }
+.ms-group-label { padding: 7px 12px; font-size: .72rem; font-weight: 700; color: var(--green-700); background: var(--green-50); text-transform: uppercase; letter-spacing: .05em; }
+.ms-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 14px; cursor: pointer; transition: var(--transition);
+  font-size: .875rem;
+}
+.ms-item:hover { background: var(--green-50); }
+.ms-item input[type=checkbox] { accent-color: var(--green-700); width: 14px; height: 14px; }
+.ms-all { border-bottom: 1px solid var(--brown-100); font-weight: 600; }
+
+/* ============================================================
+   COMBOBOX
+   ============================================================ */
+.combobox-wrap { position: relative; }
+.combobox-list {
+  position: absolute; top: calc(100% + 4px); left: 0; right: 0; z-index: 200;
+  background: var(--white); border: 1.5px solid var(--brown-200);
+  border-radius: var(--radius-sm); box-shadow: var(--shadow-md);
+  max-height: 180px; overflow-y: auto;
+  display: none;
+}
+.combobox-list.open { display: block; }
+.combobox-option {
+  padding: 8px 12px; cursor: pointer; font-size: .875rem;
+  transition: var(--transition);
+}
+.combobox-option:hover { background: var(--green-50); color: var(--green-800); }
+
+/* ============================================================
+   GROUP CARDS
+   ============================================================ */
+.group-cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+.group-card {
+  background: var(--white); border-radius: var(--radius-lg);
+  border: 1px solid var(--brown-100); box-shadow: var(--shadow-sm);
+  overflow: hidden; transition: var(--transition);
+}
+.group-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.group-card-header {
+  padding: 16px 18px;
+  background: linear-gradient(135deg, var(--green-800) 0%, var(--green-700) 100%);
+  color: var(--white);
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.group-card-icon { font-size: 2.2rem; }
+.group-card-info h3 { font-size: 1.05rem; font-weight: 700; }
+.group-card-info p  { font-size: .78rem; opacity: .8; margin-top: 2px; }
+.group-card-body { padding: 16px 18px; }
+.group-mini-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+.gms { display: flex; flex-direction: column; gap: 2px; }
+.gms-label { font-size: .7rem; color: var(--brown-400); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+.gms-value { font-size: 1rem; font-weight: 700; color: var(--green-800); }
+.group-card-actions { display: flex; gap: 8px; border-top: 1px solid var(--brown-100); padding: 12px 18px; }
+
+/* ============================================================
+   GROUP DETAIL
+   ============================================================ */
+.group-detail-banner {
+  background: linear-gradient(135deg, var(--green-900) 0%, var(--green-800) 100%);
+  border-radius: var(--radius-lg); padding: 20px 24px;
+  color: var(--white); margin-bottom: 16px;
+}
+.gdb-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.gdb-icon { font-size: 2.5rem; }
+.gdb-title h2 { font-size: 1.4rem; font-weight: 700; }
+.gdb-title p  { font-size: .82rem; opacity: .75; }
+.gdb-stats { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+.gdb-stat { background: rgba(255,255,255,.1); border-radius: var(--radius-sm); padding: 10px 14px; }
+.gdb-stat-label { font-size: .7rem; opacity: .7; text-transform: uppercase; letter-spacing: .05em; }
+.gdb-stat-value { font-size: 1.1rem; font-weight: 700; margin-top: 2px; }
+.gdb-stat-value.amber { color: var(--amber-400); }
+
+/* ============================================================
+   ANIMAL CARDS / TABLE
+   ============================================================ */
+.animal-status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 5px; }
+.dot-healthy    { background: #22c55e; }
+.dot-sick       { background: var(--red-600); }
+.dot-recovering { background: var(--amber-500); }
+.dot-quarantine { background: var(--blue-600); }
+
+/* ============================================================
+   INPUT SUMMARY CARDS
+   ============================================================ */
+.input-summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.input-sum-card {
+  background: var(--white); border-radius: var(--radius-md);
+  padding: 14px 16px; border: 1px solid var(--brown-100); box-shadow: var(--shadow-sm);
+}
+.isc-icon { font-size: 1.4rem; margin-bottom: 6px; }
+.isc-label { font-size: .72rem; color: var(--brown-400); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.isc-value { font-size: 1.1rem; font-weight: 700; color: var(--green-800); margin-top: 2px; }
+
+/* ============================================================
+   REVENUE TABLE PROFIT INDICATORS
+   ============================================================ */
+.profit-bar { height: 6px; border-radius: 3px; background: var(--brown-100); overflow: hidden; margin-top: 3px; }
+.profit-fill { height: 100%; border-radius: 3px; background: var(--green-600); }
+
+/* ============================================================
+   CHART AREA
+   ============================================================ */
+.chart-container { position: relative; }
+canvas { max-width: 100%; }
+
+/* ============================================================
+   EMPTY STATE
+   ============================================================ */
+.empty-state { text-align: center; padding: 48px 24px; }
+.empty-state-icon { font-size: 3.5rem; margin-bottom: 12px; opacity: .5; }
+.empty-state h3 { font-size: 1.1rem; color: var(--green-800); margin-bottom: 6px; }
+.empty-state p { font-size: .875rem; color: var(--brown-400); max-width: 300px; margin: 0 auto 18px; }
+
+/* ============================================================
+   ACTIVITY FEED
+   ============================================================ */
+.activity-feed { display: flex; flex-direction: column; gap: 0; }
+.activity-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 11px 16px; border-bottom: 1px solid var(--brown-100);
+  font-size: .85rem; animation: fadeIn .3s ease;
+}
+.activity-item:last-child { border-bottom: none; }
+.act-icon { font-size: 1.1rem; margin-top: 1px; flex-shrink: 0; }
+.act-body { flex: 1; }
+.act-title { font-weight: 500; color: var(--brown-900); }
+.act-sub   { font-size: .75rem; color: var(--brown-400); margin-top: 1px; }
+.act-amount { font-weight: 700; color: var(--green-800); font-size: .88rem; }
+
+/* ============================================================
+   BACK BUTTON / BREADCRUMB
+   ============================================================ */
+.breadcrumb { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; font-size: .85rem; color: var(--brown-400); }
+.breadcrumb .bc-link { cursor: pointer; color: var(--green-700); font-weight: 500; }
+.breadcrumb .bc-link:hover { text-decoration: underline; }
+.breadcrumb .bc-sep { opacity: .5; }
+
+/* ============================================================
+   CONFIRM DIALOG
+   ============================================================ */
+#confirm-backdrop {
+  position: fixed; inset: 0; z-index: 800;
+  background: rgba(26,48,9,.6); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  opacity: 0; visibility: hidden; transition: var(--transition);
+}
+#confirm-backdrop.open { opacity: 1; visibility: visible; }
+.confirm-box {
+  background: var(--white); border-radius: var(--radius-lg);
+  padding: 28px; max-width: 380px; width: 100%;
+  box-shadow: var(--shadow-lg); text-align: center;
+}
+.confirm-icon { font-size: 2.5rem; margin-bottom: 12px; }
+.confirm-title { font-size: 1.1rem; font-weight: 700; color: var(--green-800); margin-bottom: 8px; }
+.confirm-msg { font-size: .875rem; color: var(--brown-400); margin-bottom: 22px; }
+.confirm-btns { display: flex; gap: 10px; justify-content: center; }
+
+/* ============================================================
+   FILTER ROW
+   ============================================================ */
+.filter-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-bottom: 16px; }
+.filter-row .form-control { max-width: 180px; }
+
+/* ============================================================
+   SECTION HEADER
+   ============================================================ */
+.section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; flex-wrap: wrap; gap: 10px; }
+.section-title { font-size: 1.3rem; font-weight: 700; color: var(--green-800); }
+.section-sub { font-size: .82rem; color: var(--brown-400); margin-top: 2px; }
+
+/* ============================================================
+   APPS SCRIPT PANEL
+   ============================================================ */
+.apps-script-panel {
+  background: var(--brown-900); border-radius: var(--radius-md);
+  padding: 18px; margin-top: 8px;
+}
+.apps-script-panel pre {
+  color: #a8e6cf; font-size: .72rem; line-height: 1.7;
+  white-space: pre-wrap; word-break: break-all;
+  font-family: 'Courier New', monospace;
+  max-height: 300px; overflow-y: auto;
+}
+.copy-script-btn { margin-top: 10px; }
+
+/* ============================================================
+   LOADING SKELETON
+   ============================================================ */
+.skeleton { background: linear-gradient(90deg, var(--brown-100) 25%, var(--brown-200) 50%, var(--brown-100) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+.skeleton-text { height: 16px; margin-bottom: 8px; }
+.skeleton-title { height: 24px; width: 60%; margin-bottom: 12px; }
+.skeleton-card { height: 120px; margin-bottom: 14px; border-radius: var(--radius-md); }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+  #sidebar.mobile-open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,.3); }
+  #main { margin-left: 0; }
+  .topbar-toggle { display: block; }
+  .content-area { padding: 16px; }
+  .form-row, .form-row-3 { grid-template-columns: 1fr; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .modal-box { max-height: 95vh; }
+  .group-cards-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}
+
+/* ============================================================
+   PAGE ANIMATIONS
+   ============================================================ */
+.page-enter { animation: fadeIn .3s ease; }
+
+/* ============================================================
+   UTILITY
+   ============================================================ */
+.flex { display: flex; }
+.gap-8 { gap: 8px; }
+.gap-12 { gap: 12px; }
+.flex-1 { flex: 1; }
+.mt-8 { margin-top: 8px; }
+.mt-12 { margin-top: 12px; }
+.mt-16 { margin-top: 16px; }
+.mt-20 { margin-top: 20px; }
+.mb-8 { margin-bottom: 8px; }
+.mb-12 { margin-bottom: 12px; }
+.mb-16 { margin-bottom: 16px; }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+.text-sm { font-size: .82rem; }
+.text-muted { color: var(--brown-400); }
+.text-green { color: var(--green-700); }
+.text-amber { color: var(--amber-600); }
+.text-red   { color: var(--red-600); }
+.font-bold { font-weight: 700; }
+.divider { border: none; border-top: 1px solid var(--brown-100); margin: 16px 0; }
+.price-big { font-size: 2rem; font-family: 'Playfair Display', serif; font-weight: 700; color: var(--green-800); }
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     SPLASH SCREEN
+     ============================================================ -->
+<div id="splash">
+  <div class="splash-logo">Livestock<span>Pro</span></div>
+  <div class="splash-tagline">🌾 Farm Business Intelligence System</div>
+  <div class="splash-status">
+    <div class="splash-spinner" id="splash-spinner"></div>
+    <span id="splash-msg">Initializing…</span>
+  </div>
+  <div class="splash-btn-row hidden" id="splash-actions">
+    <button class="splash-btn primary" id="btn-retry-conn">🔄 Retry Connection</button>
+    <button class="splash-btn secondary" id="btn-demo-mode">🎭 Demo Mode</button>
+    <button class="splash-btn secondary" id="btn-setup">⚙️ Configure URL</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     APP SHELL
+     ============================================================ -->
+<div id="app" class="hidden">
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-brand">
+      <h1>Livestock<span>Pro</span></h1>
+      <p>🌾 Farm Business Manager</p>
+    </div>
+    <div class="sidebar-conn">
+      <div class="conn-dot" id="conn-dot"></div>
+      <span id="conn-label">Connected</span>
+    </div>
+    <nav>
+      <div class="nav-section">Main</div>
+      <div class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" data-page="groups">
+        <span class="nav-icon">🐄</span> Groups & Animals
+      </div>
+      <div class="nav-section">Operations</div>
+      <div class="nav-item" data-page="inputs">
+        <span class="nav-icon">💊</span> Supply Log
+      </div>
+      <div class="nav-item" data-page="revenue">
+        <span class="nav-icon">💰</span> Revenue & Sales
+      </div>
+      <div class="nav-section">Insights</div>
+      <div class="nav-item" data-page="reports">
+        <span class="nav-icon">📈</span> Reports
+      </div>
+      <div class="nav-item" data-page="settings">
+        <span class="nav-icon">⚙️</span> Settings
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="sidebar-biz" id="sb-biz-name">My Farm</div>
+      <div class="sidebar-owner" id="sb-owner">Owner</div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main id="main">
+    <header class="topbar">
+      <button class="topbar-toggle" id="sidebar-toggle">☰</button>
+      <div class="topbar-title" id="page-title">Dashboard</div>
+      <div class="topbar-actions" id="topbar-actions"></div>
+    </header>
+    <div class="content-area" id="content-area"></div>
+  </main>
+
+</div>
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+<div class="modal-backdrop" id="modal-backdrop">
+  <div class="modal-box" id="modal-box">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Title</span>
+      <button class="modal-close" id="modal-close">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-footer" id="modal-footer"></div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div id="confirm-backdrop">
+  <div class="confirm-box">
+    <div class="confirm-icon" id="confirm-icon">⚠️</div>
+    <div class="confirm-title" id="confirm-title">Are you sure?</div>
+    <div class="confirm-msg" id="confirm-msg">This action cannot be undone.</div>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost" id="confirm-cancel">Cancel</button>
+      <button class="btn btn-danger" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div id="toast-container"></div>
+
+<!-- ============================================================
+     MOBILE OVERLAY
+     ============================================================ -->
+<div id="sidebar-overlay" style="display:none;position:fixed;inset:0;z-index:99;background:rgba(0,0,0,.4)"></div>
+
+<script>
+/* =============================================================
+   STATE
+   ============================================================= */
+const State = {
+  groups: [],
+  animals: [],
+  inputs: [],
+  sales: [],
+  settings: {
+    currency: '₱',
+    defaultPricePerKilo: 200,
+    businessName: 'My Farm',
+    ownerName: 'Farm Owner',
+    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwmUTLCv5gP6yuj4OfByQjqmFmEeC7ewq-svakMHo5M9oyY-WElKS-tbxxCiBBLjCY3Eg/exec'
+  },
+  isDemo: false,
+  isConnected: false,
+  currentPage: 'dashboard',
+  currentGroupId: null,
+  productHistory: [],   // for combobox memory
+
+  get activeAnimals() {
+    return this.animals.filter(a => a.status === 'active');
+  },
+  get activeGroups() {
+    return this.groups.filter(g => g.status === 'active');
+  }
+};
+
+/* =============================================================
+   HELPERS
+   ============================================================= */
+const uid = () => 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+const fmtCur = (n) => State.settings.currency + Number(n||0).toLocaleString('en', {minimumFractionDigits:2, maximumFractionDigits:2});
+const fmtNum = (n, d=2) => Number(n||0).toLocaleString('en', {minimumFractionDigits:d, maximumFractionDigits:d});
+const fmtDate = (d) => { if(!d) return '—'; const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'}); };
+const today = () => new Date().toISOString().split('T')[0];
+const debounce = (fn, ms=300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn(...a), ms); }; };
+
+function ageDisplay(dateAcquired, ageAtAcqValue, ageAtAcqUnit) {
+  if (!dateAcquired) return '—';
+  const acquired = new Date(dateAcquired);
+  const now = new Date();
+  // Convert age at acquisition to days
+  const unitDays = { days:1, weeks:7, months:30, years:365 };
+  const extraDays = (ageAtAcqValue||0) * (unitDays[ageAtAcqUnit||'days']||1);
+  const totalDays = Math.floor((now - acquired) / 86400000) + extraDays;
+  const months = Math.floor(totalDays / 30);
+  const days = totalDays % 30;
+  return months > 0 ? `${months}mo ${days}d` : `${days}d`;
+}
+
+function daysOnFarm(dateAcquired) {
+  if (!dateAcquired) return 0;
+  return Math.max(0, Math.floor((new Date() - new Date(dateAcquired)) / 86400000));
+}
+
+function animalTypeIcon(type) {
+  const m = { pig:'🐷', chicken:'🐔', goat:'🐐', cattle:'🐄', cow:'🐄', duck:'🦆', sheep:'🐑', rabbit:'🐇', fish:'🐟', horse:'🐴' };
+  return m[(type||'').toLowerCase()] || '🐾';
+}
+
+function healthBadge(h) {
+  const m = { healthy:'badge-green', sick:'badge-red', recovering:'badge-amber', quarantine:'badge-blue' };
+  const dot = { healthy:'dot-healthy', sick:'dot-sick', recovering:'dot-recovering', quarantine:'dot-quarantine' };
+  return `<span class="badge ${m[h]||'badge-gray'}"><span class="animal-status-dot ${dot[h]||''}"></span>${h||'unknown'}</span>`;
+}
+
+/* =============================================================
+   COMPUTE
+   ============================================================= */
+const Compute = {
+  allocatedInputCost(animalId) {
+    return State.inputs
+      .filter(inp => {
+        const ids = inp.recipientAnimalIds || [];
+        return ids.includes(animalId) || ids.includes('ALL');
+      })
+      .reduce((sum, inp) => {
+        const ids = inp.recipientAnimalIds || [];
+        const denom = ids.includes('ALL') ? State.activeAnimals.length : ids.length;
+        return sum + (parseFloat(inp.totalCost)||0) / Math.max(1, denom);
+      }, 0);
+  },
+
+  projectedGross(animal) {
+    return (parseFloat(animal.currentWeightKg)||0) * (parseFloat(State.settings.defaultPricePerKilo)||0);
+  },
+
+  projectedNetProfit(animal) {
+    return this.projectedGross(animal) - (parseFloat(animal.acquisitionCost)||0) - this.allocatedInputCost(animal.animalId);
+  },
+
+  profitMargin(animal) {
+    const g = this.projectedGross(animal);
+    if (!g) return 0;
+    return (this.projectedNetProfit(animal) / g) * 100;
+  },
+
+  weightGain(animal) {
+    return (parseFloat(animal.currentWeightKg)||0) - (parseFloat(animal.initialWeightKg)||0);
+  },
+
+  groupInputCost(groupId) {
+    const gAnimalIds = State.animals.filter(a => a.groupId === groupId).map(a => a.animalId);
+    return State.inputs
+      .filter(inp => {
+        const ids = inp.recipientAnimalIds || [];
+        return ids.includes('ALL') || ids.some(id => gAnimalIds.includes(id));
+      })
+      .reduce((sum, inp) => {
+        const ids = inp.recipientAnimalIds || [];
+        if (ids.includes('ALL')) {
+          const allCount = State.activeAnimals.length;
+          const gCount = gAnimalIds.filter(id => State.activeAnimals.find(a=>a.animalId===id)).length;
+          return sum + (parseFloat(inp.totalCost)||0) * (gCount / Math.max(1, allCount));
+        }
+        const gIds = ids.filter(id => gAnimalIds.includes(id));
+        return sum + (parseFloat(inp.totalCost)||0) * (gIds.length / Math.max(1, ids.length));
+      }, 0);
+  },
+
+  groupAcquisitionCost(groupId) {
+    return State.animals.filter(a => a.groupId === groupId).reduce((s,a) => s + (parseFloat(a.acquisitionCost)||0), 0);
+  },
+
+  groupProjectedRevenue(groupId) {
+    return State.animals.filter(a => a.groupId === groupId && a.status==='active').reduce((s,a) => s + this.projectedGross(a), 0);
+  },
+
+  totalAcquisitionCost() { return State.animals.reduce((s,a) => s+(parseFloat(a.acquisitionCost)||0),0); },
+  totalInputCost() { return State.inputs.reduce((s,i) => s+(parseFloat(i.totalCost)||0),0); },
+  totalSalesRevenue() { return State.sales.reduce((s,sl) => s+(parseFloat(sl.grossRevenue)||0),0); },
+  totalNetProfit() {
+    return State.sales.reduce((s,sl) => s+(parseFloat(sl.netProfit)||0),0);
+  },
+  projectedTotalRevenue() {
+    return State.activeAnimals.reduce((s,a) => s+this.projectedGross(a),0);
+  },
+
+  inputsByType() {
+    const types = {};
+    State.inputs.forEach(inp => {
+      const t = inp.inputType || 'other';
+      if (!types[t]) types[t] = { count:0, cost:0 };
+      types[t].count++;
+      types[t].cost += parseFloat(inp.totalCost)||0;
+    });
+    return types;
+  },
+
+  groupInputBreakdown(groupId) {
+    const gAnimalIds = State.animals.filter(a => a.groupId === groupId).map(a => a.animalId);
+    const byType = {};
+    State.inputs.forEach(inp => {
+      const ids = inp.recipientAnimalIds || [];
+      const relevant = ids.includes('ALL') || ids.some(id => gAnimalIds.includes(id));
+      if (!relevant) return;
+      let frac = 1;
+      if (!ids.includes('ALL')) {
+        const cnt = ids.filter(id => gAnimalIds.includes(id)).length;
+        frac = cnt / Math.max(1, ids.length);
+      } else {
+        const allCnt = State.activeAnimals.length;
+        const gCnt = gAnimalIds.length;
+        frac = gCnt / Math.max(1, allCnt);
+      }
+      const t = inp.inputType || 'other';
+      if (!byType[t]) byType[t] = { qty:0, cost:0, unit: inp.unit };
+      byType[t].qty += (parseFloat(inp.quantity)||0) * frac;
+      byType[t].cost += (parseFloat(inp.totalCost)||0) * frac;
+    });
+    return byType;
+  }
+};
+
+/* =============================================================
+   API
+   ============================================================= */
+const API = {
+  async call(action, payload={}) {
+    const url = State.settings.appsScriptUrl;
+    if (!url) throw new Error('No Apps Script URL configured.');
+    const body = JSON.stringify({ action, ...payload });
+    const res = await fetch(url, {
+      method: 'POST',
+      body,
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' }
+    });
+    const text = await res.text();
+    try {
+      const data = JSON.parse(text);
+      if (!data.success) throw new Error(data.error || 'Unknown server error');
+      return data;
+    } catch(e) {
+      throw new Error('Invalid response from server: ' + text.slice(0,100));
+    }
+  },
+
+  async getData() {
+    const r = await this.call('getData');
+    return r.data;
+  },
+
+  async saveGroup(group) { return this.call('saveGroup', { group }); },
+  async saveAnimal(animal) { return this.call('saveAnimal', { animal }); },
+  async saveInput(input) { return this.call('saveInput', { input }); },
+  async saveSale(sale) { return this.call('saveSale', { sale }); },
+  async deleteAnimal(animalId) { return this.call('deleteAnimal', { animalId }); },
+  async deleteGroup(groupId) { return this.call('deleteGroup', { groupId }); },
+  async saveSettings(settings) { return this.call('saveSettings', { settings }); }
+};
+
+/* =============================================================
+   TOAST
+   ============================================================= */
+const Toast = {
+  show(msg, type='success') {
+    const icons = { success:'✅', error:'❌', info:'ℹ️', warning:'⚠️' };
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<span class="toast-icon">${icons[type]||'💬'}</span><span>${msg}</span>`;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => {
+      el.classList.add('removing');
+      el.addEventListener('animationend', () => el.remove());
+    }, 3200);
+  }
+};
+
+/* =============================================================
+   CONFIRM DIALOG
+   ============================================================= */
+const Confirm = {
+  resolve: null,
+  show(title, msg, icon='⚠️') {
+    document.getElementById('confirm-icon').textContent = icon;
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').textContent = msg;
+    document.getElementById('confirm-backdrop').classList.add('open');
+    return new Promise(res => { this.resolve = res; });
+  },
+  close(val) {
+    document.getElementById('confirm-backdrop').classList.remove('open');
+    if (this.resolve) { this.resolve(val); this.resolve = null; }
+  }
+};
+
+/* =============================================================
+   MODAL
+   ============================================================= */
+const Modal = {
+  show(title, bodyHTML, footerHTML='') {
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-body').innerHTML = bodyHTML;
+    document.getElementById('modal-footer').innerHTML = footerHTML;
+    document.getElementById('modal-backdrop').classList.add('open');
+    document.getElementById('modal-box').scrollTop = 0;
+  },
+  close() { document.getElementById('modal-backdrop').classList.remove('open'); },
+  setFooter(html) { document.getElementById('modal-footer').innerHTML = html; },
+  body() { return document.getElementById('modal-body'); }
+};
+
+/* =============================================================
+   DEMO DATA
+   ============================================================= */
+function loadDemoData() {
+  const now = today();
+  State.groups = [
+    { groupId:'g1', groupName:'Pigpen Alpha', animalType:'pig', description:'Main pig group', dateCreated:'2024-11-01', status:'active' },
+    { groupId:'g2', groupName:'Chicken Coop', animalType:'chicken', description:'Layer & broiler flock', dateCreated:'2024-12-01', status:'active' },
+    { groupId:'g3', groupName:'Goat Pen', animalType:'goat', description:'Meat goats', dateCreated:'2025-01-15', status:'active' }
+  ];
+  State.animals = [
+    { animalId:'a1', groupId:'g1', name:'Porky', gender:'male', dateAcquired:'2024-11-01', ageAtAcqValue:2, ageAtAcqUnit:'months', acquisitionType:'purchased', acquisitionCost:3500, breed:'Landrace', initialWeightKg:20, currentWeightKg:85, healthStatus:'healthy', notes:'Fast grower', status:'active' },
+    { animalId:'a2', groupId:'g1', name:'Peppa', gender:'female', dateAcquired:'2024-11-01', ageAtAcqValue:2, ageAtAcqUnit:'months', acquisitionType:'purchased', acquisitionCost:3200, breed:'Duroc', initialWeightKg:18, currentWeightKg:72, healthStatus:'healthy', notes:'', status:'active' },
+    { animalId:'a3', groupId:'g1', name:'Babe', gender:'male', dateAcquired:'2024-11-05', ageAtAcqValue:45, ageAtAcqUnit:'days', acquisitionType:'purchased', acquisitionCost:2800, breed:'Yorkshire', initialWeightKg:15, currentWeightKg:65, healthStatus:'recovering', notes:'Had fever last week', status:'active' },
+    { animalId:'a4', groupId:'g1', name:'Hamlet', gender:'male', dateAcquired:'2024-12-01', ageAtAcqValue:3, ageAtAcqUnit:'weeks', acquisitionType:'born', acquisitionCost:0, breed:'Native', initialWeightKg:8, currentWeightKg:52, healthStatus:'healthy', notes:'Born in farm', status:'active' },
+    { animalId:'a5', groupId:'g2', name:'Clucky', gender:'female', dateAcquired:'2024-12-05', ageAtAcqValue:3, ageAtAcqUnit:'weeks', acquisitionType:'purchased', acquisitionCost:180, breed:'Rhode Island Red', initialWeightKg:0.4, currentWeightKg:1.8, healthStatus:'healthy', notes:'', status:'active' },
+    { animalId:'a6', groupId:'g2', name:'Hennie', gender:'female', dateAcquired:'2024-12-05', ageAtAcqValue:3, ageAtAcqUnit:'weeks', acquisitionType:'purchased', acquisitionCost:180, breed:'Leghorn', initialWeightKg:0.3, currentWeightKg:1.6, healthStatus:'healthy', notes:'', status:'active' },
+    { animalId:'a7', groupId:'g2', name:'Rooster', gender:'male', dateAcquired:'2024-12-05', ageAtAcqValue:3, ageAtAcqUnit:'weeks', acquisitionType:'purchased', acquisitionCost:200, breed:'Native', initialWeightKg:0.4, currentWeightKg:2.1, healthStatus:'healthy', notes:'', status:'active' },
+    { animalId:'a8', groupId:'g3', name:'Billy', gender:'male', dateAcquired:'2025-01-15', ageAtAcqValue:4, ageAtAcqUnit:'months', acquisitionType:'purchased', acquisitionCost:4500, breed:'Boer', initialWeightKg:18, currentWeightKg:38, healthStatus:'healthy', notes:'', status:'active' },
+    { animalId:'a9', groupId:'g3', name:'Nanny', gender:'female', dateAcquired:'2025-01-15', ageAtAcqValue:4, ageAtAcqUnit:'months', acquisitionType:'purchased', acquisitionCost:4000, breed:'Boer', initialWeightKg:16, currentWeightKg:32, healthStatus:'sick', notes:'Mild diarrhea — treated', status:'active' },
+    { animalId:'a10', groupId:'g3', name:'Skip', gender:'male', dateAcquired:'2025-02-01', ageAtAcqValue:2, ageAtAcqUnit:'months', acquisitionType:'born', acquisitionCost:0, breed:'Native x Boer', initialWeightKg:5, currentWeightKg:18, healthStatus:'healthy', notes:'Born in farm', status:'active' }
+  ];
+  State.inputs = [
+    { inputId:'i1', date:'2025-01-10', inputType:'food', productName:'Hog Finisher Feed', unit:'kg', quantity:100, unitCost:28, totalCost:2800, recipientAnimalIds:['a1','a2','a3','a4'], administeredBy:'Juan', notes:'' },
+    { inputId:'i2', date:'2025-01-15', inputType:'medicine', productName:'Amoxicillin 500mg', unit:'tablet', quantity:20, unitCost:12, totalCost:240, recipientAnimalIds:['a3'], administeredBy:'Doc Reyes', notes:'For fever' },
+    { inputId:'i3', date:'2025-01-20', inputType:'vitamin', productName:'B-Complex Injectable', unit:'mL', quantity:40, unitCost:15, totalCost:600, recipientAnimalIds:'ALL', administeredBy:'Juan', notes:'Monthly booster' },
+    { inputId:'i4', date:'2025-02-01', inputType:'food', productName:'Broiler Finisher', unit:'kg', quantity:30, unitCost:45, totalCost:1350, recipientAnimalIds:['a5','a6','a7'], administeredBy:'Maria', notes:'' },
+    { inputId:'i5', date:'2025-02-10', inputType:'food', productName:'Goat Pellets', unit:'kg', quantity:50, unitCost:35, totalCost:1750, recipientAnimalIds:['a8','a9','a10'], administeredBy:'Pedro', notes:'' },
+    { inputId:'i6', date:'2025-03-01', inputType:'supplement', productName:'Mineral Block', unit:'pack', quantity:3, unitCost:220, totalCost:660, recipientAnimalIds:['a8','a9','a10'], administeredBy:'Pedro', notes:'' },
+    { inputId:'i7', date:'2025-03-05', inputType:'food', productName:'Hog Finisher Feed', unit:'kg', quantity:150, unitCost:28, totalCost:4200, recipientAnimalIds:['a1','a2','a3','a4'], administeredBy:'Juan', notes:'Second batch' }
+  ];
+  State.sales = [
+    { saleId:'s1', date:'2025-02-20', animalId:'a_sold', animalName:'Piggy (archived)', groupName:'Pigpen Alpha', weightAtSaleKg:90, pricePerKilo:240, grossRevenue:21600, acquisitionCost:3000, totalInputCostAllocated:3200, netProfit:15400, buyerName:'Mang Jose', notes:'Live sale' }
+  ];
+  State.settings = { currency:'₱', defaultPricePerKilo:200, businessName:'Dela Cruz Farm', ownerName:'Juan Dela Cruz', appsScriptUrl:'' };
+  State.isDemo = true;
+  State.isConnected = true;
+  loadProductHistory();
+}
+
+function loadProductHistory() {
+  const products = [...new Set(State.inputs.map(i=>i.productName).filter(Boolean))];
+  State.productHistory = products;
+}
+
+/* =============================================================
+   INITIALIZATION
+   ============================================================= */
+async function init() {
+  // Load saved URL
+  const savedUrl = localStorage.getItem('lp_script_url') || '';
+  if (savedUrl) State.settings.appsScriptUrl = savedUrl;
+  const savedSettings = localStorage.getItem('lp_settings');
+  if (savedSettings) {
+    try { Object.assign(State.settings, JSON.parse(savedSettings)); } catch(e) {}
+  }
+
+  updateSplash('Connecting to cloud…', false);
+
+  if (!State.settings.appsScriptUrl) {
+    updateSplash('No server URL configured.', true, true);
+    return;
+  }
+
+  try {
+    updateSplash('Fetching farm data…', false);
+    const data = await API.getData();
+    applyServerData(data);
+    State.isConnected = true;
+    State.isDemo = false;
+    loadProductHistory();
+    launchApp();
+  } catch(e) {
+    updateSplash('Connection failed: ' + e.message, true, true);
+  }
+}
+
+function applyServerData(data) {
+  if (!data) return;
+  State.groups  = data.groups  || [];
+  State.animals = data.animals || [];
+  State.inputs  = data.inputs  || [];
+  State.sales   = data.sales   || [];
+  if (data.settings) Object.assign(State.settings, data.settings);
+}
+
+function updateSplash(msg, showActions, showError=false) {
+  document.getElementById('splash-msg').textContent = msg;
+  if (showActions) {
+    document.getElementById('splash-actions').classList.remove('hidden');
+    document.getElementById('splash-spinner').style.display = showError ? 'none' : 'block';
+  } else {
+    document.getElementById('splash-actions').classList.add('hidden');
+    document.getElementById('splash-spinner').style.display = 'block';
+  }
+}
+
+function launchApp() {
+  document.getElementById('splash').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  updateConnStatus();
+  updateSidebarMeta();
+  navigateTo('dashboard');
+  setupGlobalEvents();
+}
+
+function updateConnStatus() {
+  const dot = document.getElementById('conn-dot');
+  const lbl = document.getElementById('conn-label');
+  dot.className = 'conn-dot';
+  if (State.isDemo) { dot.classList.add('demo'); lbl.textContent = 'Demo Mode'; }
+  else if (State.isConnected) { lbl.textContent = 'Connected'; }
+  else { dot.classList.add('offline'); lbl.textContent = 'Offline'; }
+}
+
+function updateSidebarMeta() {
+  document.getElementById('sb-biz-name').textContent = State.settings.businessName || 'My Farm';
+  document.getElementById('sb-owner').textContent = State.settings.ownerName || '';
+}
+
+/* =============================================================
+   EVENTS
+   ============================================================= */
+function setupGlobalEvents() {
+  // Nav
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', () => {
+      State.currentGroupId = null;
+      navigateTo(el.dataset.page);
+    });
+  });
+
+  // Sidebar toggle
+  document.getElementById('sidebar-toggle').addEventListener('click', toggleSidebar);
+  document.getElementById('sidebar-overlay').addEventListener('click', closeSidebar);
+
+  // Modal close
+  document.getElementById('modal-close').addEventListener('click', Modal.close);
+  document.getElementById('modal-backdrop').addEventListener('click', e => {
+    if (e.target === document.getElementById('modal-backdrop')) Modal.close();
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { Modal.close(); Confirm.close(false); }
+  });
+
+  // Confirm dialog
+  document.getElementById('confirm-cancel').addEventListener('click', () => Confirm.close(false));
+  document.getElementById('confirm-ok').addEventListener('click', () => Confirm.close(true));
+
+}
+
+function setupSplashEvents() {
+  document.getElementById('btn-retry-conn').addEventListener('click', init);
+  document.getElementById('btn-demo-mode').addEventListener('click', () => { loadDemoData(); launchApp(); });
+  document.getElementById('btn-setup').addEventListener('click', () => {
+    State.isDemo = true; State.isConnected = false;
+    launchApp(); navigateTo('settings');
+  });
+}
+
+function toggleSidebar() {
+  const sb = document.getElementById('sidebar');
+  const main = document.getElementById('main');
+  const overlay = document.getElementById('sidebar-overlay');
+  if (window.innerWidth <= 768) {
+    sb.classList.toggle('mobile-open');
+    overlay.style.display = sb.classList.contains('mobile-open') ? 'block' : 'none';
+  } else {
+    sb.classList.toggle('collapsed');
+    main.classList.toggle('expanded');
+  }
+}
+
+function closeSidebar() {
+  document.getElementById('sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebar-overlay').style.display = 'none';
+}
+
+/* =============================================================
+   ROUTER
+   ============================================================= */
+function navigateTo(page) {
+  State.currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  const titles = { dashboard:'📊 Dashboard', groups:'🐄 Groups & Animals', inputs:'💊 Supply Log', revenue:'💰 Revenue & Sales', reports:'📈 Reports & Analytics', settings:'⚙️ Settings' };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  document.getElementById('topbar-actions').innerHTML = '';
+  closeSidebar();
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = '';
+  area.className = 'content-area page-enter';
+
+  switch(page) {
+    case 'dashboard': renderDashboard(); break;
+    case 'groups':    renderGroupsPage(); break;
+    case 'inputs':    renderInputsPage(); break;
+    case 'revenue':   renderRevenuePage(); break;
+    case 'reports':   renderReportsPage(); break;
+    case 'settings':  renderSettingsPage(); break;
+  }
+}
+
+/* =============================================================
+   DASHBOARD
+   ============================================================= */
+function renderDashboard() {
+  const area = document.getElementById('content-area');
+  const totalAnimals = State.activeAnimals.length;
+  const totalCap = Compute.totalAcquisitionCost();
+  const totalInputs = Compute.totalInputCost();
+  const projRev = Compute.projectedTotalRevenue();
+  const netProfit = Compute.totalNetProfit();
+
+  area.innerHTML = `
+    <div class="section-header">
+      <div>
+        <div class="section-title">Good ${greeting()}, ${(State.settings.ownerName||'Farmer').split(' ')[0]}! 👋</div>
+        <div class="section-sub">${new Date().toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div>
+      </div>
+      <div class="flex gap-8">
+        <button class="btn btn-primary" id="db-add-animal">+ Add Animal</button>
+        <button class="btn btn-amber" id="db-log-input">+ Log Input</button>
+      </div>
+    </div>
+
+    <div class="stats-grid mb-16">
+      <div class="stat-card accent-green">
+        <div class="stat-icon">🐾</div>
+        <div class="stat-label">Active Animals</div>
+        <div class="stat-value">${totalAnimals}</div>
+        <div class="stat-sub">${State.activeGroups.length} group${State.activeGroups.length!==1?'s':''}</div>
+      </div>
+      <div class="stat-card accent-amber">
+        <div class="stat-icon">💸</div>
+        <div class="stat-label">Capital Invested</div>
+        <div class="stat-value">${fmtCur(totalCap)}</div>
+        <div class="stat-sub">Acquisition + Inputs: ${fmtCur(totalCap+totalInputs)}</div>
+      </div>
+      <div class="stat-card accent-blue">
+        <div class="stat-icon">📦</div>
+        <div class="stat-label">Total Input Costs</div>
+        <div class="stat-value">${fmtCur(totalInputs)}</div>
+        <div class="stat-sub">${State.inputs.length} entries logged</div>
+      </div>
+      <div class="stat-card accent-green">
+        <div class="stat-icon">📈</div>
+        <div class="stat-label">Projected Revenue</div>
+        <div class="stat-value">${fmtCur(projRev)}</div>
+        <div class="stat-sub">At ${fmtCur(State.settings.defaultPricePerKilo)}/kg</div>
+      </div>
+      <div class="stat-card ${netProfit>=0?'accent-green':'accent-red'}">
+        <div class="stat-icon">${netProfit>=0?'🏆':'📉'}</div>
+        <div class="stat-label">Realized Net Profit</div>
+        <div class="stat-value ${netProfit>=0?'text-green':'text-red'}">${fmtCur(netProfit)}</div>
+        <div class="stat-sub">${State.sales.length} sale${State.sales.length!==1?'s':''} completed</div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap" class="mb-16" id="db-bottom-grid">
+      <div class="card" id="db-groups-card">
+        <div class="card-header">
+          <span class="card-title">🐄 Active Groups</span>
+          <button class="btn btn-sm btn-outline" id="db-view-all-groups">View All</button>
+        </div>
+        <div class="card-body" id="db-groups-body" style="padding:0"></div>
+      </div>
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">🕐 Recent Activity</span>
+        </div>
+        <div class="activity-feed" id="db-activity"></div>
+      </div>
+    </div>
+  `;
+
+  // Responsive grid
+  const grid = document.getElementById('db-bottom-grid');
+  if (window.innerWidth < 700) grid.style.gridTemplateColumns = '1fr';
+
+  // Groups mini list
+  const gbody = document.getElementById('db-groups-body');
+  if (State.activeGroups.length === 0) {
+    gbody.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🐾</div><h3>No groups yet</h3><p>Add your first animal group to get started.</p></div>`;
+  } else {
+    gbody.innerHTML = State.activeGroups.map(g => {
+      const animals = State.animals.filter(a=>a.groupId===g.groupId && a.status==='active');
+      const projRev = animals.reduce((s,a)=>s+Compute.projectedGross(a),0);
+      const inputCost = Compute.groupInputCost(g.groupId);
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--brown-100);cursor:pointer" class="db-group-row" data-gid="${g.groupId}">
+        <span style="font-size:1.6rem">${animalTypeIcon(g.animalType)}</span>
+        <div style="flex:1">
+          <div style="font-weight:600;font-size:.9rem">${g.groupName}</div>
+          <div style="font-size:.75rem;color:var(--brown-400)">${animals.length} animal${animals.length!==1?'s':''} · Input: ${fmtCur(inputCost)}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-weight:700;color:var(--green-700);font-size:.95rem">${fmtCur(projRev)}</div>
+          <div style="font-size:.7rem;color:var(--brown-400)">projected</div>
+        </div>
+      </div>`;
+    }).join('');
+    gbody.querySelectorAll('.db-group-row').forEach(el => {
+      el.addEventListener('click', () => { State.currentGroupId = el.dataset.gid; navigateTo('groups'); });
+    });
+  }
+
+  // Activity feed
+  const activities = [
+    ...State.inputs.slice(-6).map(i => ({
+      icon:'💊', title:`${i.productName} logged`, sub:`${fmtDate(i.date)} · ${i.inputType}`, amount: fmtCur(i.totalCost), ts: i.date
+    })),
+    ...State.sales.slice(-4).map(s => ({
+      icon:'💰', title:`Sale: ${s.animalName||'Animal'}`, sub:`${fmtDate(s.date)} · ${s.buyerName||''}`, amount: fmtCur(s.grossRevenue), ts: s.date
+    }))
+  ].sort((a,b) => new Date(b.ts)-new Date(a.ts)).slice(0,10);
+
+  const actEl = document.getElementById('db-activity');
+  if (activities.length === 0) {
+    actEl.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📋</div><h3>No activity yet</h3><p>Log inputs or record sales to see activity here.</p></div>`;
+  } else {
+    actEl.innerHTML = activities.map(a => `<div class="activity-item">
+      <span class="act-icon">${a.icon}</span>
+      <div class="act-body"><div class="act-title">${a.title}</div><div class="act-sub">${a.sub}</div></div>
+      <div class="act-amount">${a.amount}</div>
+    </div>`).join('');
+  }
+
+  // Quick action buttons
+  document.getElementById('db-add-animal').addEventListener('click', () => { State.currentGroupId=null; showAddAnimalModal(); });
+  document.getElementById('db-log-input').addEventListener('click', () => { navigateTo('inputs'); });
+  document.getElementById('db-view-all-groups').addEventListener('click', () => navigateTo('groups'));
+}
+
+function greeting() {
+  const h = new Date().getHours();
+  if (h < 12) return 'morning';
+  if (h < 17) return 'afternoon';
+  return 'evening';
+}
+
+/* =============================================================
+   GROUPS PAGE
+   ============================================================= */
+function renderGroupsPage() {
+  const area = document.getElementById('content-area');
+
+  if (State.currentGroupId) {
+    renderGroupDetail(State.currentGroupId);
+    return;
+  }
+
+  area.innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Groups & Animals</div><div class="section-sub">${State.activeGroups.length} active group${State.activeGroups.length!==1?'s':''} · ${State.activeAnimals.length} animals</div></div>
+      <button class="btn btn-primary" id="btn-add-group">+ New Group</button>
+    </div>
+    <div class="group-cards-grid" id="group-cards-container"></div>
+  `;
+
+  document.getElementById('btn-add-group').addEventListener('click', showAddGroupModal);
+
+  const container = document.getElementById('group-cards-container');
+  if (State.activeGroups.length === 0) {
+    container.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="empty-state-icon">🐄</div><h3>No groups yet</h3><p>Create your first animal group to start tracking your livestock.</p><button class="btn btn-primary" id="eg-add">+ Create First Group</button></div>`;
+    document.getElementById('eg-add').addEventListener('click', showAddGroupModal);
+    return;
+  }
+
+  container.innerHTML = State.activeGroups.map(g => {
+    const animals = State.animals.filter(a=>a.groupId===g.groupId && a.status==='active');
+    const acqCost = Compute.groupAcquisitionCost(g.groupId);
+    const inputCost = Compute.groupInputCost(g.groupId);
+    const projRev = Compute.groupProjectedRevenue(g.groupId);
+    const projProfit = projRev - acqCost - inputCost;
+    return `<div class="group-card">
+      <div class="group-card-header">
+        <span class="group-card-icon">${animalTypeIcon(g.animalType)}</span>
+        <div class="group-card-info">
+          <h3>${g.groupName}</h3>
+          <p>${g.animalType} · ${g.description || 'No description'}</p>
+        </div>
+      </div>
+      <div class="group-card-body">
+        <div class="group-mini-stats">
+          <div class="gms"><div class="gms-label">Animals</div><div class="gms-value">${animals.length}</div></div>
+          <div class="gms"><div class="gms-label">Capital</div><div class="gms-value">${fmtCur(acqCost)}</div></div>
+          <div class="gms"><div class="gms-label">Input Cost</div><div class="gms-value">${fmtCur(inputCost)}</div></div>
+          <div class="gms"><div class="gms-label">Proj. Revenue</div><div class="gms-value text-green">${fmtCur(projRev)}</div></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-top:1px solid var(--brown-100)">
+          <span style="font-size:.8rem;color:var(--brown-400)">Projected Profit:</span>
+          <span style="font-weight:700;font-size:.95rem;color:${projProfit>=0?'var(--green-700)':'var(--red-600)'}">${fmtCur(projProfit)}</span>
+        </div>
+      </div>
+      <div class="group-card-actions">
+        <button class="btn btn-primary btn-sm gc-view" data-gid="${g.groupId}">View Group</button>
+        <button class="btn btn-outline btn-sm gc-addanimal" data-gid="${g.groupId}">+ Animal</button>
+        <button class="btn btn-ghost btn-sm gc-archive" data-gid="${g.groupId}">Archive</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  container.querySelectorAll('.gc-view').forEach(b => b.addEventListener('click', () => { State.currentGroupId=b.dataset.gid; renderGroupDetail(b.dataset.gid); }));
+  container.querySelectorAll('.gc-addanimal').forEach(b => b.addEventListener('click', () => { State.currentGroupId=b.dataset.gid; showAddAnimalModal(); }));
+  container.querySelectorAll('.gc-archive').forEach(b => b.addEventListener('click', () => archiveGroup(b.dataset.gid)));
+}
+
+function renderGroupDetail(groupId) {
+  const area = document.getElementById('content-area');
+  const group = State.groups.find(g=>g.groupId===groupId);
+  if (!group) { State.currentGroupId=null; renderGroupsPage(); return; }
+
+  const animals = State.animals.filter(a=>a.groupId===groupId && a.status==='active');
+  const acqCost = Compute.groupAcquisitionCost(groupId);
+  const inputCost = Compute.groupInputCost(groupId);
+  const projRev = Compute.groupProjectedRevenue(groupId);
+  const projProfit = projRev - acqCost - inputCost;
+  const breakdown = Compute.groupInputBreakdown(groupId);
+
+  const breakdownHtml = Object.entries(breakdown).map(([t, d]) => {
+    const icons = {food:'🌽',medicine:'💊',vitamin:'💉',supplement:'🧪',water:'💧',other:'📦'};
+    return `<span style="margin-right:14px"><span style="font-size:.9rem">${icons[t]||'📦'}</span> <strong>${t}</strong>: ${fmtCur(d.cost)}</span>`;
+  }).join('') || '<em style="opacity:.6">No inputs recorded yet</em>';
+
+  area.innerHTML = `
+    <div class="breadcrumb">
+      <span class="bc-link" id="bc-back">← Groups</span>
+      <span class="bc-sep">›</span>
+      <span>${group.groupName}</span>
+    </div>
+
+    <div class="group-detail-banner">
+      <div class="gdb-top">
+        <span class="gdb-icon">${animalTypeIcon(group.animalType)}</span>
+        <div class="gdb-title">
+          <h2>${group.groupName}</h2>
+          <p>${group.animalType} · ${group.description||''} · Created ${fmtDate(group.dateCreated)}</p>
+        </div>
+      </div>
+      <div class="gdb-stats">
+        <div class="gdb-stat"><div class="gdb-stat-label">Animals</div><div class="gdb-stat-value">${animals.length}</div></div>
+        <div class="gdb-stat"><div class="gdb-stat-label">Acquisition Capital</div><div class="gdb-stat-value">${fmtCur(acqCost)}</div></div>
+        <div class="gdb-stat"><div class="gdb-stat-label">Total Input Cost</div><div class="gdb-stat-value">${fmtCur(inputCost)}</div></div>
+        <div class="gdb-stat"><div class="gdb-stat-label">Projected Revenue</div><div class="gdb-stat-value amber">${fmtCur(projRev)}</div></div>
+        <div class="gdb-stat"><div class="gdb-stat-label">Projected Profit</div><div class="gdb-stat-value ${projProfit>=0?'amber':''}"> ${projProfit<0?'- ':''}${fmtCur(Math.abs(projProfit))}</div></div>
+      </div>
+      <div style="margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.15);font-size:.8rem;opacity:.85">
+        📦 <strong>Input Breakdown:</strong> ${breakdownHtml}
+      </div>
+    </div>
+
+    <div class="section-header">
+      <div><div class="section-title">Animals in ${group.groupName}</div></div>
+      <button class="btn btn-amber" id="gd-add-animal">+ Add Animal</button>
+    </div>
+
+    <div class="card">
+      <div class="table-wrap">
+        <table id="group-animals-table">
+          <thead><tr>
+            <th>Name</th><th>Gender</th><th>Age</th><th>Weight (kg)</th>
+            <th>Gain (kg)</th><th>Acq. Cost</th><th>Input Cost</th>
+            <th>Proj. Value</th><th>Proj. Profit</th><th>Health</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="group-animals-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('bc-back').addEventListener('click', () => { State.currentGroupId=null; renderGroupsPage(); });
+  document.getElementById('gd-add-animal').addEventListener('click', () => showAddAnimalModal(groupId));
+
+  const tbody = document.getElementById('group-animals-tbody');
+  if (animals.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state"><div class="empty-state-icon">🐾</div><h3>No animals yet</h3><p>Add your first animal to this group.</p></div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = animals.map(a => {
+    const alloc = Compute.allocatedInputCost(a.animalId);
+    const gross = Compute.projectedGross(a);
+    const profit = Compute.projectedNetProfit(a);
+    const rowClass = profit > gross*0.2 ? 'row-green' : profit < 0 ? 'row-red' : 'row-yellow';
+    return `<tr class="${rowClass}">
+      <td><strong>${a.name}</strong></td>
+      <td><span class="badge ${a.gender==='male'?'badge-blue':a.gender==='female'?'badge-amber':'badge-gray'}">${a.gender||'?'}</span></td>
+      <td>${ageDisplay(a.dateAcquired, a.ageAtAcqValue, a.ageAtAcqUnit)}</td>
+      <td><strong>${fmtNum(a.currentWeightKg)}</strong><br><span class="text-sm text-muted">${daysOnFarm(a.dateAcquired)}d on farm</span></td>
+      <td>${Compute.weightGain(a)>0?'+':''}${fmtNum(Compute.weightGain(a))}</td>
+      <td>${fmtCur(a.acquisitionCost)}</td>
+      <td>${fmtCur(alloc)}</td>
+      <td>${fmtCur(gross)}</td>
+      <td class="${profit>=0?'text-green':'text-red'} font-bold">${fmtCur(profit)}</td>
+      <td>${healthBadge(a.healthStatus)}</td>
+      <td>
+        <div class="flex gap-8">
+          <button class="btn btn-sm btn-outline an-edit" data-aid="${a.animalId}">Edit</button>
+          <button class="btn btn-sm btn-danger an-del" data-aid="${a.animalId}">Del</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.an-edit').forEach(b => b.addEventListener('click', () => showAddAnimalModal(groupId, b.dataset.aid)));
+  tbody.querySelectorAll('.an-del').forEach(b => b.addEventListener('click', () => deleteAnimal(b.dataset.aid)));
+}
+
+/* =============================================================
+   ADD / EDIT ANIMAL MODAL
+   ============================================================= */
+function showAddAnimalModal(groupId, animalId) {
+  const gid = groupId || State.currentGroupId;
+  const existing = animalId ? State.animals.find(a=>a.animalId===animalId) : null;
+  const group = gid ? State.groups.find(g=>g.groupId===gid) : null;
+  const isEdit = !!existing;
+
+  const breedSuggestions = {
+    pig: ['Landrace','Duroc','Yorkshire','Berkshire','Hampshire','Native','Cross-breed'],
+    chicken: ['Rhode Island Red','Leghorn','Broiler','Native','Plymouth Rock','Orpington'],
+    goat: ['Boer','Anglo-Nubian','Saanen','Native','Nubian x Native'],
+    cattle: ['Brahman','Angus','Holstein','Native','Simmental'],
+    default: ['Purebred','Cross-breed','Native','Unknown']
+  };
+  const animalType = group?.animalType || existing?.animalType || 'pig';
+  const breeds = breedSuggestions[animalType] || breedSuggestions.default;
+
+  const gOptions = State.activeGroups.map(g => `<option value="${g.groupId}" ${(gid===g.groupId)?'selected':''}>${g.groupName}</option>`).join('');
+
+  const v = existing || { gender:'male', ageAtAcqUnit:'months', acquisitionType:'purchased', healthStatus:'healthy', dateAcquired:today() };
+
+  const body = `
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Animal Name *</label>
+        <input class="form-control" id="am-name" placeholder="e.g. Porky" value="${v.name||''}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Group *</label>
+        <select class="form-control" id="am-group">${gOptions}</select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Gender</label>
+      <div class="seg-btn-group">
+        <button class="seg-btn ${v.gender==='male'?'active':''}" data-val="male">♂ Male</button>
+        <button class="seg-btn ${v.gender==='female'?'active':''}" data-val="female">♀ Female</button>
+        <button class="seg-btn ${(!v.gender||v.gender==='unknown')?'active':''}" data-val="unknown">? Unknown</button>
+      </div>
+      <input type="hidden" id="am-gender" value="${v.gender||'unknown'}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Breed</label>
+        <div class="combobox-wrap">
+          <input class="form-control" id="am-breed" placeholder="Type or select..." autocomplete="off" value="${v.breed||''}">
+          <div class="combobox-list" id="am-breed-list">
+            ${breeds.map(b=>`<div class="combobox-option">${b}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Health Status</label>
+        <select class="form-control" id="am-health">
+          ${['healthy','sick','recovering','quarantine'].map(h=>`<option value="${h}" ${v.healthStatus===h?'selected':''}>${h.charAt(0).toUpperCase()+h.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date Acquired *</label>
+        <input type="date" class="form-control" id="am-date" value="${v.dateAcquired||today()}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Age at Acquisition</label>
+        <div style="display:flex;gap:6px">
+          <input type="number" class="form-control" id="am-age-val" min="0" value="${v.ageAtAcqValue||0}" style="flex:1">
+          <select class="form-control" id="am-age-unit" style="width:120px">
+            ${['days','weeks','months','years'].map(u=>`<option value="${u}" ${v.ageAtAcqUnit===u?'selected':''}>${u}</option>`).join('')}
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Acquisition Type</label>
+        <select class="form-control" id="am-acqtype">
+          ${['purchased','born','gifted','traded'].map(t=>`<option value="${t}" ${v.acquisitionType===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Acquisition Cost (${State.settings.currency})</label>
+        <input type="number" class="form-control" id="am-cost" min="0" value="${v.acquisitionCost||0}" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Initial Weight (kg)</label>
+        <input type="number" class="form-control" id="am-init-wt" min="0" step="0.1" value="${v.initialWeightKg||''}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Current Weight (kg)</label>
+        <input type="number" class="form-control" id="am-curr-wt" min="0" step="0.1" value="${v.currentWeightKg||''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Notes</label>
+      <textarea class="form-control" id="am-notes" rows="2" placeholder="Optional notes...">${v.notes||''}</textarea>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap" id="am-computed">
+      <div class="form-computed">📅 Age: <span id="am-c-age">—</span></div>
+      <div class="form-computed">🏠 Days on Farm: <span id="am-c-days">—</span></div>
+      <div class="form-computed">⚖️ Weight Gain: <span id="am-c-gain">—</span></div>
+    </div>
+  `;
+
+  Modal.show(isEdit ? `Edit Animal — ${existing.name}` : 'Add New Animal', body, `
+    <button class="btn btn-ghost" id="am-cancel">Cancel</button>
+    <button class="btn btn-primary" id="am-save">💾 ${isEdit?'Update':'Add'} Animal</button>
+  `);
+
+  // Seg buttons
+  document.querySelectorAll('.seg-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.closest('.seg-btn-group').querySelectorAll('.seg-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('am-gender').value = btn.dataset.val;
+    });
+  });
+
+  // Combobox
+  setupCombobox('am-breed', 'am-breed-list', breeds);
+
+  // Acquisition type → disable cost if born/gifted
+  const acqTypeEl = document.getElementById('am-acqtype');
+  const costEl = document.getElementById('am-cost');
+  const updateCostDisabled = () => {
+    const disable = ['born','gifted'].includes(acqTypeEl.value);
+    costEl.disabled = disable;
+    if (disable) costEl.value = 0;
+  };
+  acqTypeEl.addEventListener('change', updateCostDisabled);
+  updateCostDisabled();
+
+  // Live computed values
+  const computeLive = () => {
+    const dateAcq = document.getElementById('am-date').value;
+    const ageVal = parseFloat(document.getElementById('am-age-val').value)||0;
+    const ageUnit = document.getElementById('am-age-unit').value;
+    const initWt = parseFloat(document.getElementById('am-init-wt').value)||0;
+    const currWt = parseFloat(document.getElementById('am-curr-wt').value)||0;
+    document.getElementById('am-c-age').textContent = ageDisplay(dateAcq, ageVal, ageUnit);
+    document.getElementById('am-c-days').textContent = daysOnFarm(dateAcq) + ' days';
+    const gain = currWt - initWt;
+    document.getElementById('am-c-gain').textContent = (gain>=0?'+':'') + fmtNum(gain) + ' kg';
+  };
+  ['am-date','am-age-val','am-age-unit','am-init-wt','am-curr-wt'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', computeLive);
+    document.getElementById(id)?.addEventListener('change', computeLive);
+  });
+  computeLive();
+
+  document.getElementById('am-cancel').addEventListener('click', Modal.close);
+  document.getElementById('am-save').addEventListener('click', () => saveAnimal(isEdit ? existing.animalId : null, gid));
+}
+
+function setupCombobox(inputId, listId, options) {
+  const input = document.getElementById(inputId);
+  const list = document.getElementById(listId);
+  if (!input || !list) return;
+
+  input.addEventListener('focus', () => {
+    filterCombobox(input, list, options);
+    list.classList.add('open');
+  });
+  input.addEventListener('input', () => filterCombobox(input, list, options));
+  document.addEventListener('click', e => {
+    if (!input.contains(e.target) && !list.contains(e.target)) list.classList.remove('open');
+  }, true);
+  list.querySelectorAll('.combobox-option').forEach(opt => {
+    opt.addEventListener('click', () => { input.value = opt.textContent; list.classList.remove('open'); });
+  });
+}
+
+function filterCombobox(input, list, options) {
+  const q = input.value.toLowerCase();
+  const filtered = options.filter(o => o.toLowerCase().includes(q));
+  list.innerHTML = filtered.map(b=>`<div class="combobox-option">${b}</div>`).join('');
+  list.querySelectorAll('.combobox-option').forEach(opt => {
+    opt.addEventListener('click', () => { input.value = opt.textContent; list.classList.remove('open'); });
+  });
+}
+
+async function saveAnimal(animalId, groupId) {
+  const name = document.getElementById('am-name').value.trim();
+  const gid  = document.getElementById('am-group').value;
+  if (!name) { Toast.show('Animal name is required.', 'error'); return; }
+  if (!gid)  { Toast.show('Please select a group.', 'error'); return; }
+
+  const animal = {
+    animalId: animalId || uid(),
+    groupId: gid,
+    name,
+    gender: document.getElementById('am-gender').value,
+    breed: document.getElementById('am-breed').value,
+    dateAcquired: document.getElementById('am-date').value,
+    ageAtAcqValue: parseFloat(document.getElementById('am-age-val').value)||0,
+    ageAtAcqUnit: document.getElementById('am-age-unit').value,
+    acquisitionType: document.getElementById('am-acqtype').value,
+    acquisitionCost: parseFloat(document.getElementById('am-cost').value)||0,
+    initialWeightKg: parseFloat(document.getElementById('am-init-wt').value)||0,
+    currentWeightKg: parseFloat(document.getElementById('am-curr-wt').value)||0,
+    healthStatus: document.getElementById('am-health').value,
+    notes: document.getElementById('am-notes').value,
+    status: 'active'
+  };
+
+  const saveBtn = document.getElementById('am-save');
+  saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
+
+  try {
+    if (!State.isDemo) await API.saveAnimal(animal);
+    const idx = State.animals.findIndex(a=>a.animalId===animal.animalId);
+    if (idx>=0) State.animals[idx]=animal; else State.animals.push(animal);
+    Modal.close();
+    Toast.show(`Animal "${name}" ${animalId?'updated':'added'} successfully!`, 'success');
+    if (State.currentGroupId) renderGroupDetail(State.currentGroupId); else renderGroupsPage();
+  } catch(e) {
+    Toast.show('Error saving: ' + e.message, 'error');
+    saveBtn.disabled = false; saveBtn.textContent = 'Save Animal';
+  }
+}
+
+async function deleteAnimal(animalId) {
+  const animal = State.animals.find(a=>a.animalId===animalId);
+  const ok = await Confirm.show(`Delete ${animal?.name||'this animal'}?`, 'This will mark the animal as deleted. You can still see it in reports.', '🗑️');
+  if (!ok) return;
+  try {
+    if (!State.isDemo) await API.deleteAnimal(animalId);
+    const idx = State.animals.findIndex(a=>a.animalId===animalId);
+    if (idx>=0) State.animals[idx].status = 'deleted';
+    Toast.show('Animal removed.', 'info');
+    if (State.currentGroupId) renderGroupDetail(State.currentGroupId); else renderGroupsPage();
+  } catch(e) { Toast.show('Error: '+e.message,'error'); }
+}
+
+async function archiveGroup(groupId) {
+  const group = State.groups.find(g=>g.groupId===groupId);
+  const ok = await Confirm.show(`Archive "${group?.groupName}"?`, 'All animals in this group will be hidden from active views.', '📦');
+  if (!ok) return;
+  try {
+    group.status = 'closed';
+    if (!State.isDemo) await API.saveGroup(group);
+    Toast.show('Group archived.', 'info');
+    renderGroupsPage();
+  } catch(e) { Toast.show('Error: '+e.message,'error'); }
+}
+
+function showAddGroupModal() {
+  const animalTypes = ['pig','chicken','goat','cattle','duck','sheep','rabbit','fish','horse','other'];
+  Modal.show('Create New Group', `
+    <div class="form-group">
+      <label class="form-label">Group Name *</label>
+      <input class="form-control" id="gm-name" placeholder="e.g. Pigpen Alpha">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Animal Type *</label>
+        <select class="form-control" id="gm-type">
+          ${animalTypes.map(t=>`<option value="${t}">${animalTypeIcon(t)} ${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date Created</label>
+        <input type="date" class="form-control" id="gm-date" value="${today()}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <input class="form-control" id="gm-desc" placeholder="Optional description">
+    </div>
+  `, `
+    <button class="btn btn-ghost" id="gm-cancel">Cancel</button>
+    <button class="btn btn-primary" id="gm-save">+ Create Group</button>
+  `);
+  document.getElementById('gm-cancel').addEventListener('click', Modal.close);
+  document.getElementById('gm-save').addEventListener('click', saveGroup);
+}
+
+async function saveGroup() {
+  const name = document.getElementById('gm-name').value.trim();
+  if (!name) { Toast.show('Group name is required.','error'); return; }
+  const group = {
+    groupId: uid(), groupName: name,
+    animalType: document.getElementById('gm-type').value,
+    description: document.getElementById('gm-desc').value,
+    dateCreated: document.getElementById('gm-date').value,
+    status: 'active'
+  };
+  const btn = document.getElementById('gm-save');
+  btn.disabled=true; btn.textContent='Saving…';
+  try {
+    if (!State.isDemo) await API.saveGroup(group);
+    State.groups.push(group);
+    Modal.close();
+    Toast.show(`Group "${name}" created!`,'success');
+    renderGroupsPage();
+  } catch(e) { Toast.show('Error: '+e.message,'error'); btn.disabled=false; btn.textContent='+ Create Group'; }
+}
+
+/* =============================================================
+   INPUTS PAGE
+   ============================================================= */
+function renderInputsPage() {
+  const area = document.getElementById('content-area');
+  const byType = Compute.inputsByType();
+
+  const typeIcons = {food:'🌽',medicine:'💊',vitamin:'💉',supplement:'🧪',water:'💧',other:'📦'};
+  const typeTotals = ['food','medicine','vitamin','supplement','water','other'].map(t => ({
+    type:t, icon:typeIcons[t]||'📦', cost:(byType[t]?.cost||0)
+  }));
+  const grandTotal = typeTotals.reduce((s,t)=>s+t.cost,0);
+
+  area.innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Supply Log</div><div class="section-sub">${State.inputs.length} entries · Total: ${fmtCur(grandTotal)}</div></div>
+      <button class="btn btn-amber" id="btn-log-input">+ Log New Input</button>
+    </div>
+
+    <div class="input-summary-grid">
+      ${typeTotals.map(t=>`<div class="input-sum-card">
+        <div class="isc-icon">${t.icon}</div>
+        <div class="isc-label">${t.type}</div>
+        <div class="isc-value">${fmtCur(t.cost)}</div>
+      </div>`).join('')}
+      <div class="input-sum-card" style="border:2px solid var(--amber-500)">
+        <div class="isc-icon">💰</div>
+        <div class="isc-label">Grand Total</div>
+        <div class="isc-value" style="color:var(--amber-600)">${fmtCur(grandTotal)}</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">Input History</span>
+        <div class="filter-row" style="margin:0">
+          <input class="form-control" id="inp-filter-date" type="date" placeholder="Filter date">
+          <select class="form-control" id="inp-filter-type">
+            <option value="">All Types</option>
+            ${['food','medicine','vitamin','supplement','water','other'].map(t=>`<option value="${t}">${t}</option>`).join('')}
+          </select>
+          <input class="form-control" id="inp-filter-text" placeholder="Search product…">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Type</th><th>Product</th><th>Qty</th><th>Unit</th>
+            <th>Unit Cost</th><th>Total</th><th>Recipients</th><th>By</th><th></th>
+          </tr></thead>
+          <tbody id="inputs-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-log-input').addEventListener('click', showLogInputModal);
+  renderInputsTable();
+
+  ['inp-filter-date','inp-filter-type','inp-filter-text'].forEach(id => {
+    document.getElementById(id).addEventListener('input', renderInputsTable);
+    document.getElementById(id).addEventListener('change', renderInputsTable);
+  });
+}
+
+function renderInputsTable() {
+  const dateF = document.getElementById('inp-filter-date')?.value || '';
+  const typeF = document.getElementById('inp-filter-type')?.value || '';
+  const textF = (document.getElementById('inp-filter-text')?.value || '').toLowerCase();
+
+  let data = [...State.inputs].sort((a,b) => new Date(b.date)-new Date(a.date));
+  if (dateF) data = data.filter(i=>i.date===dateF);
+  if (typeF) data = data.filter(i=>i.inputType===typeF);
+  if (textF) data = data.filter(i=>(i.productName||'').toLowerCase().includes(textF));
+
+  const typeIcons = {food:'🌽',medicine:'💊',vitamin:'💉',supplement:'🧪',water:'💧',other:'📦'};
+  const tbody = document.getElementById('inputs-tbody');
+  if (!tbody) return;
+
+  if (data.length===0) { tbody.innerHTML=`<tr><td colspan="10"><div class="empty-state"><div class="empty-state-icon">📋</div><h3>No inputs found</h3></div></td></tr>`; return; }
+
+  tbody.innerHTML = data.map(inp => {
+    const recipients = inp.recipientAnimalIds;
+    let recText;
+    if (recipients === 'ALL' || (Array.isArray(recipients) && recipients.includes('ALL'))) {
+      recText = `<span class="badge badge-green">All Animals</span>`;
+    } else {
+      const names = (recipients||[]).map(id=>{
+        const a = State.animals.find(a=>a.animalId===id);
+        return a ? a.name : '?';
+      });
+      recText = names.length > 3 ? `${names.slice(0,3).join(', ')} +${names.length-3}` : names.join(', ');
+    }
+    return `<tr>
+      <td>${fmtDate(inp.date)}</td>
+      <td><span class="badge badge-${inp.inputType==='medicine'?'red':inp.inputType==='food'?'green':'amber'}">${typeIcons[inp.inputType]||'📦'} ${inp.inputType||'?'}</span></td>
+      <td><strong>${inp.productName||'—'}</strong></td>
+      <td>${fmtNum(inp.quantity,1)}</td>
+      <td>${inp.unit||''}</td>
+      <td>${fmtCur(inp.unitCost)}</td>
+      <td><strong>${fmtCur(inp.totalCost)}</strong></td>
+      <td style="max-width:160px;white-space:normal;font-size:.8rem">${recText}</td>
+      <td class="text-muted text-sm">${inp.administeredBy||'—'}</td>
+      <td><button class="btn-icon inp-del" data-iid="${inp.inputId}" title="Delete">🗑️</button></td>
+    </tr>`;
+  }).join('');
+
+  tbody.querySelectorAll('.inp-del').forEach(b => b.addEventListener('click', () => deleteInput(b.dataset.iid)));
+}
+
+function showLogInputModal() {
+  const unitOptions = ['kg','g','L','mL','pack','tablet','sachet','dose','bottle','piece','other'];
+  const typeOptions = ['food','medicine','vitamin','supplement','water','other'];
+
+  Modal.show('Log New Input / Supply', `
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date *</label>
+        <input type="date" class="form-control" id="im-date" value="${today()}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Input Type *</label>
+        <select class="form-control" id="im-type">
+          ${typeOptions.map(t=>`<option value="${t}">${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Product Name *</label>
+      <div class="combobox-wrap">
+        <input class="form-control" id="im-product" placeholder="e.g. Hog Finisher Feed" autocomplete="off">
+        <div class="combobox-list" id="im-product-list">
+          ${State.productHistory.map(p=>`<div class="combobox-option">${p}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label class="form-label">Quantity *</label>
+        <input type="number" class="form-control" id="im-qty" min="0" step="0.01" placeholder="0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit</label>
+        <div class="combobox-wrap">
+          <input class="form-control" id="im-unit" placeholder="kg" autocomplete="off">
+          <div class="combobox-list" id="im-unit-list">
+            ${unitOptions.map(u=>`<div class="combobox-option">${u}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit Cost (${State.settings.currency})</label>
+        <input type="number" class="form-control" id="im-ucost" min="0" step="0.01" placeholder="0.00">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Total Cost</label>
+      <div class="form-computed" id="im-total">₱0.00</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Recipient Animals *</label>
+      <div class="multi-select-wrap">
+        <div class="multi-select-trigger" id="ms-trigger">
+          <span id="ms-label">Select animals…</span>
+          <span>▾</span>
+        </div>
+        <div class="multi-select-panel" id="ms-panel">
+          <div class="ms-item ms-all">
+            <input type="checkbox" id="ms-all-cb"> <label for="ms-all-cb" style="cursor:pointer;font-weight:600">✅ Select All Animals</label>
+          </div>
+          ${State.activeGroups.map(g => {
+            const gAnimals = State.activeAnimals.filter(a=>a.groupId===g.groupId);
+            if (!gAnimals.length) return '';
+            return `<div class="ms-group-label">${animalTypeIcon(g.animalType)} ${g.groupName}</div>
+            ${gAnimals.map(a=>`<div class="ms-item">
+              <input type="checkbox" class="ms-animal-cb" id="ms-${a.animalId}" value="${a.animalId}">
+              <label for="ms-${a.animalId}" style="cursor:pointer">${a.name} <span class="text-muted text-sm">(${fmtNum(a.currentWeightKg)}kg)</span></label>
+            </div>`).join('')}`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Administered By</label>
+        <input class="form-control" id="im-by" placeholder="Name">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input class="form-control" id="im-notes" placeholder="Optional">
+      </div>
+    </div>
+  `, `
+    <button class="btn btn-ghost" id="im-cancel">Cancel</button>
+    <button class="btn btn-amber" id="im-save">💊 Log Input</button>
+  `);
+
+  setupCombobox('im-product','im-product-list', State.productHistory);
+  setupCombobox('im-unit','im-unit-list', unitOptions);
+
+  // Multi-select toggle
+  const trigger = document.getElementById('ms-trigger');
+  const panel = document.getElementById('ms-panel');
+  trigger.addEventListener('click', () => panel.classList.toggle('open'));
+  document.addEventListener('click', e => { if (!trigger.contains(e.target) && !panel.contains(e.target)) panel.classList.remove('open'); }, true);
+
+  // Select all
+  const allCb = document.getElementById('ms-all-cb');
+  const animalCbs = () => document.querySelectorAll('.ms-animal-cb');
+  allCb.addEventListener('change', () => { animalCbs().forEach(cb => cb.checked = allCb.checked); updateMsLabel(); });
+  panel.addEventListener('change', e => { if (e.target.classList.contains('ms-animal-cb')) { allCb.checked = [...animalCbs()].every(cb=>cb.checked); updateMsLabel(); } });
+
+  function updateMsLabel() {
+    const total = animalCbs().length;
+    const checked = [...animalCbs()].filter(cb=>cb.checked).length;
+    document.getElementById('ms-label').textContent = checked===0 ? 'Select animals…' : checked===total ? `All ${total} animals selected` : `${checked} of ${total} animals selected`;
+  }
+
+  // Auto-compute total
+  const computeTotal = () => {
+    const qty = parseFloat(document.getElementById('im-qty').value)||0;
+    const uc = parseFloat(document.getElementById('im-ucost').value)||0;
+    document.getElementById('im-total').textContent = fmtCur(qty*uc);
+  };
+  document.getElementById('im-qty').addEventListener('input', computeTotal);
+  document.getElementById('im-ucost').addEventListener('input', computeTotal);
+
+  document.getElementById('im-cancel').addEventListener('click', Modal.close);
+  document.getElementById('im-save').addEventListener('click', saveInput);
+}
+
+async function saveInput() {
+  const product = document.getElementById('im-product').value.trim();
+  if (!product) { Toast.show('Product name is required.','error'); return; }
+  const qty = parseFloat(document.getElementById('im-qty').value)||0;
+  const uc  = parseFloat(document.getElementById('im-ucost').value)||0;
+
+  const allCb = document.getElementById('ms-all-cb');
+  let recipientIds;
+  if (allCb.checked) {
+    recipientIds = 'ALL';
+  } else {
+    recipientIds = [...document.querySelectorAll('.ms-animal-cb:checked')].map(cb=>cb.value);
+    if (!recipientIds.length) { Toast.show('Please select at least one animal.','error'); return; }
+  }
+
+  const input = {
+    inputId: uid(),
+    date: document.getElementById('im-date').value,
+    inputType: document.getElementById('im-type').value,
+    productName: product,
+    unit: document.getElementById('im-unit').value,
+    quantity: qty,
+    unitCost: uc,
+    totalCost: qty*uc,
+    recipientAnimalIds: recipientIds,
+    administeredBy: document.getElementById('im-by').value,
+    notes: document.getElementById('im-notes').value
+  };
+
+  const btn = document.getElementById('im-save');
+  btn.disabled=true; btn.textContent='Saving…';
+  try {
+    if (!State.isDemo) await API.saveInput(input);
+    State.inputs.push(input);
+    if (!State.productHistory.includes(product)) State.productHistory.push(product);
+    Modal.close();
+    Toast.show(`Input "${product}" logged!`,'success');
+    renderInputsPage();
+  } catch(e) { Toast.show('Error: '+e.message,'error'); btn.disabled=false; btn.textContent='💊 Log Input'; }
+}
+
+async function deleteInput(inputId) {
+  const ok = await Confirm.show('Delete this input entry?','This cannot be undone.','🗑️');
+  if (!ok) return;
+  State.inputs = State.inputs.filter(i=>i.inputId!==inputId);
+  Toast.show('Input deleted.','info');
+  renderInputsPage();
+}
+
+/* =============================================================
+   REVENUE & SALES PAGE
+   ============================================================= */
+function renderRevenuePage() {
+  const area = document.getElementById('content-area');
+  const pricePer = parseFloat(State.settings.defaultPricePerKilo)||0;
+
+  area.innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Revenue & Sales</div></div>
+      <button class="btn btn-amber" id="btn-record-sale">💰 Record Sale</button>
+    </div>
+
+    <div class="card mb-16" style="padding:20px 24px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div>
+        <div style="font-size:.78rem;font-weight:600;color:var(--brown-400);text-transform:uppercase;letter-spacing:.05em">Current Price Per Kilo</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+          <span style="font-size:1.2rem;font-weight:700;color:var(--green-800)">${State.settings.currency}</span>
+          <input type="number" id="price-per-kg" class="form-control" style="width:130px;font-size:1.3rem;font-weight:700;text-align:center" value="${pricePer}" min="0" step="1">
+          <span style="font-size:.85rem;color:var(--brown-400)">/kg</span>
+          <button class="btn btn-primary btn-sm" id="btn-update-price">Update</button>
+        </div>
+      </div>
+      <div style="flex:1;display:flex;gap:20px;flex-wrap:wrap">
+        <div class="gms"><div class="gms-label">Projected Total Revenue</div><div class="gms-value text-green" id="rv-proj-total">${fmtCur(Compute.projectedTotalRevenue())}</div></div>
+        <div class="gms"><div class="gms-label">Total Sales Revenue</div><div class="gms-value">${fmtCur(Compute.totalSalesRevenue())}</div></div>
+        <div class="gms"><div class="gms-label">Net Profit (Sales)</div><div class="gms-value ${Compute.totalNetProfit()>=0?'text-green':'text-red'}">${fmtCur(Compute.totalNetProfit())}</div></div>
+      </div>
+    </div>
+
+    <div class="card mb-16">
+      <div class="card-header"><span class="card-title">📊 Projected Revenue Table</span><span class="text-sm text-muted">At current price: ${State.settings.currency}${pricePer}/kg</span></div>
+      <div class="table-wrap">
+        <table id="rev-table">
+          <thead><tr>
+            <th>Animal</th><th>Group</th><th>Weight (kg)</th>
+            <th>Gross Value</th><th>Acq. Cost</th><th>Input Cost</th>
+            <th>Net Profit</th><th>Margin %</th><th>Status</th>
+          </tr></thead>
+          <tbody id="rev-tbody"></tbody>
+          <tfoot><tr class="tfoot-total" id="rev-tfoot"></tr></tfoot>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">🧾 Sales History</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Date</th><th>Animal</th><th>Group</th><th>Weight (kg)</th>
+            <th>Price/kg</th><th>Gross Revenue</th><th>Costs</th><th>Net Profit</th><th>Buyer</th>
+          </tr></thead>
+          <tbody id="sales-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+  `;
+
+  renderRevenueTable();
+  renderSalesHistory();
+
+  document.getElementById('btn-update-price').addEventListener('click', async () => {
+    const p = parseFloat(document.getElementById('price-per-kg').value)||0;
+    State.settings.defaultPricePerKilo = p;
+    if (!State.isDemo) {
+      try { await API.saveSettings(State.settings); } catch(e) { Toast.show('Could not save to cloud.','warning'); }
+    }
+    localStorage.setItem('lp_settings', JSON.stringify(State.settings));
+    Toast.show(`Price updated to ${State.settings.currency}${p}/kg`,'success');
+    document.getElementById('rv-proj-total').textContent = fmtCur(Compute.projectedTotalRevenue());
+    renderRevenueTable();
+  });
+
+  document.getElementById('btn-record-sale').addEventListener('click', showRecordSaleModal);
+}
+
+function renderRevenueTable() {
+  const tbody = document.getElementById('rev-tbody');
+  const tfoot = document.getElementById('rev-tfoot');
+  if (!tbody) return;
+
+  const animals = State.activeAnimals;
+  if (animals.length===0) {
+    tbody.innerHTML = `<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">📊</div><h3>No active animals</h3></div></td></tr>`;
+    return;
+  }
+
+  let totGross=0, totAcq=0, totInp=0, totProfit=0;
+  tbody.innerHTML = animals.map(a => {
+    const group = State.groups.find(g=>g.groupId===a.groupId);
+    const alloc = Compute.allocatedInputCost(a.animalId);
+    const gross = Compute.projectedGross(a);
+    const profit = Compute.projectedNetProfit(a);
+    const margin = Compute.profitMargin(a);
+    totGross+=gross; totAcq+=(parseFloat(a.acquisitionCost)||0); totInp+=alloc; totProfit+=profit;
+    const rowCls = profit>0.2*gross?'row-green':profit<0?'row-red':'row-yellow';
+    const mColor = margin>20?'text-green':margin<0?'text-red':'text-amber';
+    return `<tr class="${rowCls}">
+      <td><strong>${a.name}</strong></td>
+      <td><span class="text-sm">${animalTypeIcon(group?.animalType||'')} ${group?.groupName||'—'}</span></td>
+      <td><strong>${fmtNum(a.currentWeightKg)}</strong></td>
+      <td>${fmtCur(gross)}</td>
+      <td>${fmtCur(a.acquisitionCost)}</td>
+      <td>${fmtCur(alloc)}</td>
+      <td class="${profit>=0?'text-green':'text-red'} font-bold">${fmtCur(profit)}</td>
+      <td class="${mColor} font-bold">${fmtNum(margin,1)}%</td>
+      <td>${healthBadge(a.healthStatus)}</td>
+    </tr>`;
+  }).join('');
+
+  const totMargin = totGross>0?(totProfit/totGross*100):0;
+  tfoot.innerHTML = `
+    <td><strong>TOTAL</strong></td><td></td>
+    <td><strong>${fmtNum(animals.reduce((s,a)=>s+(parseFloat(a.currentWeightKg)||0),0))} kg</strong></td>
+    <td><strong>${fmtCur(totGross)}</strong></td>
+    <td><strong>${fmtCur(totAcq)}</strong></td>
+    <td><strong>${fmtCur(totInp)}</strong></td>
+    <td class="${totProfit>=0?'text-green':'text-red'}"><strong>${fmtCur(totProfit)}</strong></td>
+    <td class="${totMargin>=0?'text-green':'text-red'}"><strong>${fmtNum(totMargin,1)}%</strong></td>
+    <td></td>
+  `;
+}
+
+function renderSalesHistory() {
+  const tbody = document.getElementById('sales-tbody');
+  if (!tbody) return;
+  if (State.sales.length===0) {
+    tbody.innerHTML=`<tr><td colspan="9"><div class="empty-state"><div class="empty-state-icon">🧾</div><h3>No sales yet</h3></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = [...State.sales].sort((a,b)=>new Date(b.date)-new Date(a.date)).map(s => {
+    const netCls = (parseFloat(s.netProfit)||0)>=0?'text-green':'text-red';
+    const totalCosts = (parseFloat(s.acquisitionCost)||0)+(parseFloat(s.totalInputCostAllocated)||0);
+    return `<tr>
+      <td>${fmtDate(s.date)}</td>
+      <td><strong>${s.animalName||'—'}</strong></td>
+      <td>${s.groupName||'—'}</td>
+      <td>${fmtNum(s.weightAtSaleKg)}</td>
+      <td>${fmtCur(s.pricePerKilo)}/kg</td>
+      <td><strong>${fmtCur(s.grossRevenue)}</strong></td>
+      <td>${fmtCur(totalCosts)}</td>
+      <td class="${netCls} font-bold">${fmtCur(s.netProfit)}</td>
+      <td class="text-muted text-sm">${s.buyerName||'—'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function showRecordSaleModal() {
+  const animals = State.activeAnimals;
+  if (animals.length===0) { Toast.show('No active animals to sell.','warning'); return; }
+
+  const animalOptions = animals.map(a => {
+    const g = State.groups.find(g=>g.groupId===a.groupId);
+    return `<option value="${a.animalId}">${a.name} (${g?.groupName||''}) — ${fmtNum(a.currentWeightKg)}kg</option>`;
+  }).join('');
+
+  Modal.show('Record a Sale', `
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Animal *</label>
+        <select class="form-control" id="sl-animal">${animalOptions}</select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Date of Sale *</label>
+        <input type="date" class="form-control" id="sl-date" value="${today()}">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Weight at Sale (kg) *</label>
+        <input type="number" class="form-control" id="sl-weight" min="0" step="0.1" placeholder="0.0">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Price Per Kilo (${State.settings.currency}) *</label>
+        <input type="number" class="form-control" id="sl-price" min="0" step="1" value="${State.settings.defaultPricePerKilo}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Computed Values</label>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px" id="sl-computed">
+        <div class="form-computed">💰 Gross: <span id="sl-gross">—</span></div>
+        <div class="form-computed">📦 Costs: <span id="sl-costs">—</span></div>
+        <div class="form-computed">🏆 Net: <span id="sl-net">—</span></div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Buyer Name</label>
+        <input class="form-control" id="sl-buyer" placeholder="Optional">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input class="form-control" id="sl-notes" placeholder="Optional">
+      </div>
+    </div>
+  `,`
+    <button class="btn btn-ghost" id="sl-cancel">Cancel</button>
+    <button class="btn btn-amber" id="sl-save">💰 Record Sale</button>
+  `);
+
+  const updateSaleComputed = () => {
+    const animalId = document.getElementById('sl-animal').value;
+    const weight = parseFloat(document.getElementById('sl-weight').value)||0;
+    const price = parseFloat(document.getElementById('sl-price').value)||0;
+    const animal = State.animals.find(a=>a.animalId===animalId);
+    const gross = weight*price;
+    const acqCost = animal ? (parseFloat(animal.acquisitionCost)||0) : 0;
+    const inpCost = animal ? Compute.allocatedInputCost(animalId) : 0;
+    const net = gross - acqCost - inpCost;
+    document.getElementById('sl-gross').textContent = fmtCur(gross);
+    document.getElementById('sl-costs').textContent = fmtCur(acqCost+inpCost);
+    document.getElementById('sl-net').textContent = fmtCur(net);
+    // Pre-fill weight
+    if (animal && !document.getElementById('sl-weight').value) {
+      document.getElementById('sl-weight').value = animal.currentWeightKg||'';
+    }
+  };
+
+  document.getElementById('sl-animal').addEventListener('change', () => {
+    const animalId = document.getElementById('sl-animal').value;
+    const animal = State.animals.find(a=>a.animalId===animalId);
+    if (animal) document.getElementById('sl-weight').value = animal.currentWeightKg||'';
+    updateSaleComputed();
+  });
+  document.getElementById('sl-weight').addEventListener('input', updateSaleComputed);
+  document.getElementById('sl-price').addEventListener('input', updateSaleComputed);
+  updateSaleComputed();
+
+  document.getElementById('sl-cancel').addEventListener('click', Modal.close);
+  document.getElementById('sl-save').addEventListener('click', recordSale);
+}
+
+async function recordSale() {
+  const animalId = document.getElementById('sl-animal').value;
+  const weight = parseFloat(document.getElementById('sl-weight').value)||0;
+  const price  = parseFloat(document.getElementById('sl-price').value)||0;
+  if (!weight||!price) { Toast.show('Weight and price are required.','error'); return; }
+
+  const animal = State.animals.find(a=>a.animalId===animalId);
+  const group  = animal ? State.groups.find(g=>g.groupId===animal.groupId) : null;
+  const acqCost = parseFloat(animal?.acquisitionCost)||0;
+  const inpCost = Compute.allocatedInputCost(animalId);
+  const gross = weight*price;
+
+  const sale = {
+    saleId: uid(),
+    date: document.getElementById('sl-date').value,
+    animalId, animalName: animal?.name||'', groupName: group?.groupName||'',
+    weightAtSaleKg: weight, pricePerKilo: price,
+    grossRevenue: gross, acquisitionCost: acqCost,
+    totalInputCostAllocated: inpCost,
+    netProfit: gross - acqCost - inpCost,
+    buyerName: document.getElementById('sl-buyer').value,
+    notes: document.getElementById('sl-notes').value
+  };
+
+  const btn = document.getElementById('sl-save');
+  btn.disabled=true; btn.textContent='Saving…';
+  try {
+    if (!State.isDemo) await API.saveSale(sale);
+    State.sales.push(sale);
+    // Mark animal as sold
+    if (animal) animal.status='sold';
+    if (!State.isDemo && animal) await API.saveAnimal(animal).catch(()=>{});
+    Modal.close();
+    Toast.show(`Sale recorded: ${fmtCur(gross)} gross revenue!`,'success');
+    renderRevenuePage();
+  } catch(e) { Toast.show('Error: '+e.message,'error'); btn.disabled=false; btn.textContent='💰 Record Sale'; }
+}
+
+/* =============================================================
+   REPORTS PAGE
+   ============================================================= */
+function renderReportsPage() {
+  const area = document.getElementById('content-area');
+  area.innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Reports & Analytics</div></div>
+      <button class="btn btn-outline" id="btn-print">🖨️ Print Report</button>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" id="reports-grid">
+      <div class="card">
+        <div class="card-header"><span class="card-title">📊 Cost Breakdown by Type</span></div>
+        <div class="card-body"><canvas id="chart-costs" height="220"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏆 Top Animals by Projected Profit</span></div>
+        <div class="card-body" style="padding:0">
+          <div id="top-animals-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mb-16">
+      <div class="card-header"><span class="card-title">📋 Full Animal Performance Summary</span></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>Animal</th><th>Group</th><th>Type</th><th>Days on Farm</th>
+            <th>Wt Gain (kg)</th><th>Total Cost</th><th>Proj. Revenue</th>
+            <th>Proj. Profit</th><th>Margin</th><th>Health</th>
+          </tr></thead>
+          <tbody id="rpt-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><span class="card-title">📈 Monthly Input Cost Trend</span></div>
+      <div class="card-body"><canvas id="chart-monthly" height="200"></canvas></div>
+    </div>
+  `;
+
+  if (window.innerWidth<700) document.getElementById('reports-grid').style.gridTemplateColumns='1fr';
+
+  drawCostChart();
+  drawMonthlyChart();
+  renderTopAnimals();
+  renderPerformanceTable();
+
+  document.getElementById('btn-print').addEventListener('click', () => window.print());
+}
+
+function drawCostChart() {
+  const canvas = document.getElementById('chart-costs');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const byType = Compute.inputsByType();
+  const labels = Object.keys(byType);
+  const values = labels.map(l=>byType[l].cost);
+  const colors = ['#5ea830','#D4A017','#2563eb','#e67e22','#8e44ad','#e74c3c'];
+
+  const maxV = Math.max(...values, 1);
+  const W=canvas.offsetWidth||350, H=220;
+  canvas.width=W; canvas.height=H;
+  const bw=Math.max(30, (W-60)/Math.max(labels.length,1)-10);
+  const startX=40;
+
+  ctx.clearRect(0,0,W,H);
+  // Y axis
+  ctx.strokeStyle='#e0d6cc'; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=H-30-(i/4)*(H-50);
+    ctx.beginPath(); ctx.moveTo(30,y); ctx.lineTo(W-10,y); ctx.stroke();
+    ctx.fillStyle='#8b6347'; ctx.font='10px DM Sans';
+    ctx.fillText(fmtCur(maxV*i/4).replace(/\.00$/,''),2,y+4);
+  }
+
+  labels.forEach((label,i) => {
+    const barH = values[i]/maxV*(H-50);
+    const x=startX+i*(bw+10);
+    const y=H-30-barH;
+    ctx.fillStyle=colors[i%colors.length];
+    ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(x,y,bw,barH,4) : ctx.rect(x,y,bw,barH);
+    ctx.fill();
+    ctx.fillStyle='#4a2e1a'; ctx.font='10px DM Sans'; ctx.textAlign='center';
+    ctx.fillText(label.slice(0,6),x+bw/2,H-8);
+    if (values[i]>0) { ctx.fillStyle=colors[i%colors.length]; ctx.fillText(fmtCur(values[i]),x+bw/2,y-4); }
+  });
+}
+
+function drawMonthlyChart() {
+  const canvas = document.getElementById('chart-monthly');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+
+  // Group inputs by month
+  const monthly = {};
+  State.inputs.forEach(inp => {
+    const m = (inp.date||'').slice(0,7);
+    if (!m) return;
+    if (!monthly[m]) monthly[m]=0;
+    monthly[m]+=(parseFloat(inp.totalCost)||0);
+  });
+  const labels = Object.keys(monthly).sort();
+  const values = labels.map(l=>monthly[l]);
+
+  if (!labels.length) {
+    ctx.fillStyle='#8b6347'; ctx.font='14px DM Sans'; ctx.textAlign='center';
+    ctx.fillText('No data yet', canvas.offsetWidth/2, 100);
+    return;
+  }
+
+  const W=canvas.offsetWidth||700, H=200;
+  canvas.width=W; canvas.height=H;
+  const maxV=Math.max(...values,1);
+  const bw=Math.max(20,(W-60)/Math.max(labels.length,1)-8);
+
+  ctx.clearRect(0,0,W,H);
+  ctx.strokeStyle='#e0d6cc'; ctx.lineWidth=1;
+  for(let i=0;i<=4;i++){
+    const y=H-30-(i/4)*(H-50);
+    ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W-10,y); ctx.stroke();
+  }
+
+  labels.forEach((m,i)=>{
+    const barH=values[i]/maxV*(H-50);
+    const x=50+i*(bw+8);
+    const y=H-30-barH;
+    ctx.fillStyle='#2D5016';
+    ctx.beginPath();
+    ctx.roundRect?ctx.roundRect(x,y,bw,barH,3):ctx.rect(x,y,bw,barH);
+    ctx.fill();
+    ctx.fillStyle='#4a2e1a'; ctx.font='9px DM Sans'; ctx.textAlign='center';
+    ctx.fillText(m.slice(5),x+bw/2,H-8);
+    if(values[i]>0){ ctx.fillStyle='#D4A017'; ctx.font='9px DM Sans'; ctx.fillText(fmtCur(values[i]),x+bw/2,y-4); }
+  });
+}
+
+function renderTopAnimals() {
+  const el = document.getElementById('top-animals-list');
+  if (!el) return;
+  const animals = [...State.activeAnimals].map(a=>({
+    ...a, profit: Compute.projectedNetProfit(a), gross: Compute.projectedGross(a)
+  })).sort((a,b)=>b.profit-a.profit).slice(0,8);
+
+  if (!animals.length) { el.innerHTML='<div class="empty-state">No animals</div>'; return; }
+  const maxProfit = Math.max(...animals.map(a=>Math.abs(a.profit)),1);
+
+  el.innerHTML = animals.map((a,i)=>{
+    const pct = Math.abs(a.profit)/maxProfit*100;
+    const color = a.profit>0?'var(--green-600)':a.profit===0?'var(--amber-500)':'var(--red-600)';
+    return `<div style="padding:10px 16px;border-bottom:1px solid var(--brown-100);display:flex;align-items:center;gap:12px">
+      <span style="font-weight:700;color:var(--brown-400);font-size:.85rem;width:20px">#${i+1}</span>
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:.9rem">${a.name}</div>
+        <div class="profit-bar"><div class="profit-fill" style="width:${pct}%;background:${color}"></div></div>
+      </div>
+      <div style="text-align:right">
+        <div style="font-weight:700;color:${color};font-size:.9rem">${fmtCur(a.profit)}</div>
+        <div class="text-sm text-muted">of ${fmtCur(a.gross)}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPerformanceTable() {
+  const tbody = document.getElementById('rpt-tbody');
+  if (!tbody) return;
+  const all = [...State.animals].sort((a,b)=>Compute.projectedNetProfit(b)-Compute.projectedNetProfit(a));
+  tbody.innerHTML = all.map(a=>{
+    const g=State.groups.find(g=>g.groupId===a.groupId);
+    const alloc=Compute.allocatedInputCost(a.animalId);
+    const totalCost=(parseFloat(a.acquisitionCost)||0)+alloc;
+    const gross=Compute.projectedGross(a);
+    const profit=Compute.projectedNetProfit(a);
+    const margin=Compute.profitMargin(a);
+    const cls=a.status!=='active'?'text-muted':'';
+    return `<tr class="${cls}">
+      <td><strong>${a.name}</strong>${a.status!=='active'?` <span class="badge badge-gray">${a.status}</span>`:''}</td>
+      <td>${g?.groupName||'—'}</td>
+      <td>${animalTypeIcon(g?.animalType||'')} ${g?.animalType||'—'}</td>
+      <td>${daysOnFarm(a.dateAcquired)}d</td>
+      <td>${(Compute.weightGain(a)>=0?'+':'')}${fmtNum(Compute.weightGain(a))} kg</td>
+      <td>${fmtCur(totalCost)}</td>
+      <td>${fmtCur(gross)}</td>
+      <td class="${profit>=0?'text-green':'text-red'} font-bold">${fmtCur(profit)}</td>
+      <td class="${margin>=0?'text-green':'text-red'}">${fmtNum(margin,1)}%</td>
+      <td>${healthBadge(a.healthStatus)}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* =============================================================
+   SETTINGS PAGE
+   ============================================================= */
+function renderSettingsPage() {
+  const s = State.settings;
+  const area = document.getElementById('content-area');
+  area.innerHTML = `
+    <div class="section-header">
+      <div><div class="section-title">Settings</div></div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">🏡 Business Information</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+          <div class="form-group"><label class="form-label">Business Name</label><input class="form-control" id="s-biz" value="${s.businessName||''}"></div>
+          <div class="form-group"><label class="form-label">Owner Name</label><input class="form-control" id="s-owner" value="${s.ownerName||''}"></div>
+          <div class="form-group"><label class="form-label">Currency Symbol</label><input class="form-control" id="s-cur" value="${s.currency||'₱'}" style="max-width:80px"></div>
+          <div class="form-group"><label class="form-label">Default Price Per Kilo</label><input type="number" class="form-control" id="s-price" value="${s.defaultPricePerKilo||0}" style="max-width:160px"></div>
+          <button class="btn btn-primary" id="btn-save-settings">💾 Save Settings</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">☁️ Cloud Connection</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
+          <div class="form-group">
+            <label class="form-label">Google Apps Script URL</label>
+            <input class="form-control" id="s-url" type="url" placeholder="https://script.google.com/macros/s/..." value="${s.appsScriptUrl||''}">
+            <div class="form-hint">Paste your deployed Apps Script Web App URL here.</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-outline" id="btn-test-conn">🔌 Test Connection</button>
+            <button class="btn btn-primary" id="btn-save-url">Save URL</button>
+          </div>
+          <div id="conn-test-result" style="font-size:.85rem"></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <div class="card">
+        <div class="card-header"><span class="card-title">📥 Data Management</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
+          <button class="btn btn-outline" id="btn-export">📤 Export Data (JSON)</button>
+          <div class="form-group">
+            <label class="form-label">Import Data (JSON)</label>
+            <input type="file" class="form-control" id="import-file" accept=".json">
+          </div>
+          <button class="btn btn-ghost" id="btn-import">📥 Import from File</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><span class="card-title">📊 Summary Stats</span></div>
+        <div class="card-body" style="display:flex;flex-direction:column;gap:8px;font-size:.875rem">
+          <div class="flex gap-8"><span style="flex:1;color:var(--brown-400)">Groups:</span><strong>${State.groups.length}</strong></div>
+          <div class="flex gap-8"><span style="flex:1;color:var(--brown-400)">Animals (all):</span><strong>${State.animals.length}</strong></div>
+          <div class="flex gap-8"><span style="flex:1;color:var(--brown-400)">Input Entries:</span><strong>${State.inputs.length}</strong></div>
+          <div class="flex gap-8"><span style="flex:1;color:var(--brown-400)">Sales Records:</span><strong>${State.sales.length}</strong></div>
+          <div class="flex gap-8"><span style="flex:1;color:var(--brown-400)">Mode:</span><strong>${State.isDemo?'🎭 Demo':'☁️ Cloud Connected'}</strong></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <span class="card-title">📋 Google Apps Script Code</span>
+        <button class="btn btn-sm btn-outline" id="btn-copy-script">📋 Copy Code</button>
+      </div>
+      <div class="card-body">
+        <p style="font-size:.85rem;color:var(--brown-400);margin-bottom:12px">Copy this code into your Google Apps Script editor (<a href="https://script.google.com" target="_blank" style="color:var(--green-700)">script.google.com</a>), then deploy as a Web App with access set to "Anyone".</p>
+        <div class="apps-script-panel">
+          <pre id="apps-script-code">${getAppsScriptCode().replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (window.innerWidth<700) {
+    document.querySelectorAll('#content-area > div[style*="grid-template-columns:1fr 1fr"]').forEach(el=>el.style.gridTemplateColumns='1fr');
+  }
+
+  document.getElementById('btn-save-settings').addEventListener('click', saveSettings);
+  document.getElementById('btn-save-url').addEventListener('click', () => {
+    State.settings.appsScriptUrl = document.getElementById('s-url').value.trim();
+    localStorage.setItem('lp_script_url', State.settings.appsScriptUrl);
+    saveSettings();
+  });
+
+  document.getElementById('btn-test-conn').addEventListener('click', async () => {
+    const url = document.getElementById('s-url').value.trim();
+    const res = document.getElementById('conn-test-result');
+    res.textContent = '⏳ Testing…';
+    if (!url) { res.textContent='❌ Please enter a URL first.'; return; }
+    try {
+      State.settings.appsScriptUrl = url;
+      await API.getData();
+      res.innerHTML='<span style="color:var(--green-700)">✅ Connected successfully!</span>';
+      State.isConnected=true;
+      updateConnStatus();
+    } catch(e) {
+      res.innerHTML=`<span style="color:var(--red-600)">❌ Failed: ${e.message}</span>`;
+    }
+  });
+
+  document.getElementById('btn-export').addEventListener('click', () => {
+    const data = JSON.stringify({ groups:State.groups, animals:State.animals, inputs:State.inputs, sales:State.sales, settings:State.settings }, null, 2);
+    const blob = new Blob([data],{type:'application/json'});
+    const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
+    a.download=`livestockpro_backup_${today()}.json`; a.click();
+    Toast.show('Data exported!','success');
+  });
+
+  document.getElementById('btn-import').addEventListener('click', () => {
+    const file = document.getElementById('import-file').files[0];
+    if (!file) { Toast.show('Please select a file.','warning'); return; }
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const data = JSON.parse(e.target.result);
+        applyServerData(data);
+        Toast.show('Data imported successfully!','success');
+        renderSettingsPage();
+      } catch { Toast.show('Invalid JSON file.','error'); }
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById('btn-copy-script').addEventListener('click', () => {
+    navigator.clipboard.writeText(getAppsScriptCode()).then(()=>Toast.show('Apps Script code copied!','success')).catch(()=>Toast.show('Could not copy. Please select and copy manually.','warning'));
+  });
+}
+
+async function saveSettings() {
+  const s = {
+    ...State.settings,
+    businessName: document.getElementById('s-biz')?.value || State.settings.businessName,
+    ownerName: document.getElementById('s-owner')?.value || State.settings.ownerName,
+    currency: document.getElementById('s-cur')?.value || State.settings.currency,
+    defaultPricePerKilo: parseFloat(document.getElementById('s-price')?.value)||0,
+    appsScriptUrl: document.getElementById('s-url')?.value?.trim() || State.settings.appsScriptUrl
+  };
+  Object.assign(State.settings, s);
+  localStorage.setItem('lp_settings', JSON.stringify(s));
+  localStorage.setItem('lp_script_url', s.appsScriptUrl);
+  if (!State.isDemo && s.appsScriptUrl) {
+    try { await API.saveSettings(s); } catch(e) { Toast.show('Saved locally. Cloud sync failed.','warning'); return; }
+  }
+  updateSidebarMeta();
+  Toast.show('Settings saved!','success');
+}
+
+/* =============================================================
+   APPS SCRIPT CODE
+   ============================================================= */
+function getAppsScriptCode() {
+return `// LivestockPro — Google Apps Script Backend
+// Deploy as Web App: Execute as "Me", Access "Anyone"
+// =====================================================
+
+const SHEET_NAMES = {
+  groups: 'Groups', animals: 'Animals',
+  inputs: 'Inputs', sales: 'Sales', settings: 'Settings'
+};
+
+const HEADERS = {
+  groups:   ['groupId','groupName','animalType','description','dateCreated','status'],
+  animals:  ['animalId','groupId','name','gender','breed','dateAcquired','ageAtAcqValue',
+             'ageAtAcqUnit','acquisitionType','acquisitionCost','initialWeightKg',
+             'currentWeightKg','healthStatus','notes','status'],
+  inputs:   ['inputId','date','inputType','productName','unit','quantity','unitCost',
+             'totalCost','recipientAnimalIds','administeredBy','notes'],
+  sales:    ['saleId','date','animalId','animalName','groupName','weightAtSaleKg',
+             'pricePerKilo','grossRevenue','acquisitionCost','totalInputCostAllocated',
+             'netProfit','buyerName','notes'],
+  settings: ['key','value']
+};
+
+function doPost(e) {
+  try {
+    const req = JSON.parse(e.postData.contents);
+    let result;
+    switch(req.action) {
+      case 'getData':      result = getData(); break;
+      case 'saveGroup':    result = upsertRow('groups', req.group, 'groupId'); break;
+      case 'saveAnimal':   result = upsertRow('animals', req.animal, 'animalId'); break;
+      case 'saveInput':    result = insertRow('inputs', req.input); break;
+      case 'saveSale':     result = insertRow('sales', req.sale); break;
+      case 'deleteAnimal': result = softDelete('animals', 'animalId', req.animalId); break;
+      case 'deleteGroup':  result = softDelete('groups', 'groupId', req.groupId); break;
+      case 'saveSettings': result = saveSettings(req.settings); break;
+      default: throw new Error('Unknown action: ' + req.action);
+    }
+    return output({ success: true, data: result });
+  } catch(err) {
+    return output({ success: false, error: err.message });
+  }
+}
+
+function output(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.TEXT);
+}
+
+function getSheet(name) {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(SHEET_NAMES[name]);
+  if (!sh) {
+    sh = ss.insertSheet(SHEET_NAMES[name]);
+    sh.appendRow(HEADERS[name]);
+  }
+  return sh;
+}
+
+function sheetToObjects(name) {
+  const sh = getSheet(name);
+  const data = sh.getDataRange().getValues();
+  if (data.length < 2) return [];
+  const headers = data[0];
+  return data.slice(1).map(row => {
+    const obj = {};
+    headers.forEach((h, i) => {
+      let v = row[i];
+      if (h === 'recipientAnimalIds') {
+        try { v = JSON.parse(v); } catch(e) { v = v ? String(v).split(',') : []; }
+      }
+      obj[h] = v === '' ? null : v;
+    });
+    return obj;
+  });
+}
+
+function getData() {
+  const settingsRows = sheetToObjects('settings');
+  const settings = {};
+  settingsRows.forEach(r => { settings[r.key] = r.value; });
+  return {
+    groups: sheetToObjects('groups'),
+    animals: sheetToObjects('animals'),
+    inputs: sheetToObjects('inputs'),
+    sales: sheetToObjects('sales'),
+    settings
+  };
+}
+
+function upsertRow(sheetName, obj, idField) {
+  const sh = getSheet(sheetName);
+  const data = sh.getDataRange().getValues();
+  const headers = data[0];
+  const idCol = headers.indexOf(idField);
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][idCol] == obj[idField]) {
+      const row = headers.map(h => {
+        if (h === 'recipientAnimalIds') return JSON.stringify(obj[h]);
+        return obj[h] !== undefined ? obj[h] : '';
+      });
+      sh.getRange(i + 1, 1, 1, row.length).setValues([row]);
+      return obj;
+    }
+  }
+  return insertRow(sheetName, obj);
+}
+
+function insertRow(sheetName, obj) {
+  const sh = getSheet(sheetName);
+  const headers = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0];
+  const row = headers.map(h => {
+    if (h === 'recipientAnimalIds') return JSON.stringify(obj[h]);
+    return obj[h] !== undefined ? obj[h] : '';
+  });
+  sh.appendRow(row);
+  return obj;
+}
+
+function softDelete(sheetName, idField, idValue) {
+  const sh = getSheet(sheetName);
+  const data = sh.getDataRange().getValues();
+  const headers = data[0];
+  const idCol = headers.indexOf(idField);
+  const statusCol = headers.indexOf('status');
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][idCol] == idValue && statusCol >= 0) {
+      sh.getRange(i + 1, statusCol + 1).setValue('deleted');
+      return { deleted: idValue };
+    }
+  }
+  return { deleted: null };
+}
+
+function saveSettings(settingsObj) {
+  const sh = getSheet('settings');
+  const existing = sh.getDataRange().getValues();
+  const keyMap = {};
+  for (let i = 1; i < existing.length; i++) keyMap[existing[i][0]] = i + 1;
+  Object.entries(settingsObj).forEach(([key, value]) => {
+    if (keyMap[key]) sh.getRange(keyMap[key], 2).setValue(value);
+    else sh.appendRow([key, value]);
+  });
+  return settingsObj;
+}`;
+}
+
+/* =============================================================
+   MAIN INIT
+   ============================================================= */
+document.addEventListener('DOMContentLoaded', () => { setupSplashEvents(); init(); });
+</script>
+
+</body>
+</html>
