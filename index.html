@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="LivestockPro — Farm Business Manager for tracking livestock groups, supply costs, and revenue.">
 <title>LivestockPro — Farm Business Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -45,7 +46,7 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html { font-size: 15px; scroll-behavior: smooth; }
+html { font-size: 16px; scroll-behavior: smooth; }
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--cream);
@@ -152,7 +153,9 @@ nav { flex: 1; padding: 8px 0; }
   cursor: pointer; transition: var(--transition);
   border-left: 3px solid transparent;
   user-select: none;
+  outline: none;
 }
+.nav-item:focus-visible { background: rgba(255,255,255,.12); outline: 2px solid var(--amber-400); outline-offset: -2px; }
 .nav-item:hover { color: var(--white); background: rgba(255,255,255,.07); }
 .nav-item.active { color: var(--amber-400); border-left-color: var(--amber-400); background: rgba(212,160,23,.1); }
 .nav-item .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; }
@@ -172,7 +175,7 @@ nav { flex: 1; padding: 8px 0; }
 #main.expanded { margin-left: 0; }
 .topbar {
   position: sticky; top: 0; z-index: 50;
-  background: rgba(250,247,240,.92); backdrop-filter: blur(10px);
+  background: rgba(250,247,240,.92); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--brown-100);
   padding: 12px 24px;
   display: flex; align-items: center; gap: 14px;
@@ -180,7 +183,8 @@ nav { flex: 1; padding: 8px 0; }
 .topbar-toggle {
   background: none; border: none;
   font-size: 1.2rem; padding: 4px; color: var(--brown-700);
-  display: none;
+  display: none; min-width: 44px; min-height: 44px;
+  align-items: center; justify-content: center;
 }
 .topbar-title { font-size: 1.1rem; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--green-800); flex: 1; }
 .topbar-actions { display: flex; gap: 8px; align-items: center; }
@@ -192,7 +196,7 @@ nav { flex: 1; padding: 8px 0; }
   padding: 4px 10px; font-size: .78rem; font-weight: 600;
   color: var(--brown-700); cursor: pointer; flex-shrink: 0;
   transition: var(--transition); touch-action: manipulation;
-  white-space: nowrap;
+  white-space: nowrap; min-height: 44px;
 }
 .topbar-back:hover { background: var(--brown-100); border-color: var(--brown-400); color: var(--brown-900); }
 .topbar-back.visible { display: inline-flex; }
@@ -218,7 +222,7 @@ nav { flex: 1; padding: 8px 0; }
 .btn-danger { background: var(--red-100); color: var(--red-600); border: 1.5px solid #f5c6c0; }
 .btn-danger:hover { background: #fbd5d0; }
 .btn-sm { padding: 5px 12px; font-size: .8rem; }
-.btn-icon { padding: 7px; background: transparent; border: none; color: var(--brown-400); border-radius: var(--radius-sm); transition: var(--transition); }
+.btn-icon { padding: 7px; background: transparent; border: none; color: var(--brown-400); border-radius: var(--radius-sm); transition: var(--transition); min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 .btn-icon:hover { background: var(--brown-100); color: var(--brown-700); }
 
 /* ============================================================
@@ -295,7 +299,7 @@ tbody tr.row-red { background: #fff0f0; }
 .form-label { font-size: .8rem; font-weight: 600; color: var(--brown-700); }
 .form-control {
   padding: 9px 12px; border: 1.5px solid var(--brown-200);
-  border-radius: var(--radius-sm); font-size: .875rem;
+  border-radius: var(--radius-sm); font-size: 1rem;
   background: var(--white); color: var(--brown-900);
   transition: var(--transition); outline: none;
   width: 100%;
@@ -323,7 +327,7 @@ tbody tr.row-red { background: #fff0f0; }
    ============================================================ */
 .modal-backdrop {
   position: fixed; inset: 0; z-index: 500;
-  background: rgba(26,48,9,.55); backdrop-filter: blur(4px);
+  background: rgba(26,48,9,.55); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center; padding: 16px;
   opacity: 0; visibility: hidden; transition: var(--transition);
 }
@@ -342,7 +346,7 @@ tbody tr.row-red { background: #fff0f0; }
   position: sticky; top: 0; background: var(--white); z-index: 1;
 }
 .modal-title { font-size: 1.1rem; font-weight: 700; color: var(--green-800); }
-.modal-close { background: none; border: none; font-size: 1.3rem; color: var(--brown-400); cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: var(--transition); }
+.modal-close { background: none; border: none; font-size: 1.3rem; color: var(--brown-400); cursor: pointer; padding: 4px 8px; border-radius: 4px; transition: var(--transition); min-width: 44px; min-height: 44px; display: inline-flex; align-items: center; justify-content: center; }
 .modal-close:hover { background: var(--brown-100); color: var(--brown-700); }
 .modal-body { padding: 22px; display: flex; flex-direction: column; gap: 16px; }
 .modal-footer { padding: 16px 22px; border-top: 1px solid var(--brown-100); display: flex; gap: 10px; justify-content: flex-end; background: var(--cream); }
@@ -351,15 +355,16 @@ tbody tr.row-red { background: #fff0f0; }
    TOAST NOTIFICATIONS
    ============================================================ */
 #toast-container {
-  position: fixed; bottom: 24px; right: 24px; z-index: 9000;
+  position: fixed; bottom: 24px; right: 16px; z-index: 9000;
   display: flex; flex-direction: column; gap: 10px; pointer-events: none;
+  max-width: calc(100vw - 32px);
 }
 .toast {
   background: var(--white); border-radius: var(--radius-md);
   box-shadow: var(--shadow-lg); border: 1px solid var(--brown-100);
   padding: 12px 18px; font-size: .875rem; font-weight: 500;
   display: flex; align-items: center; gap: 10px;
-  min-width: 260px; max-width: 360px;
+  min-width: 240px; max-width: min(360px, calc(100vw - 32px));
   animation: toastIn .3s ease forwards;
   pointer-events: auto;
 }
@@ -537,7 +542,7 @@ canvas { max-width: 100%; }
    ============================================================ */
 #confirm-backdrop {
   position: fixed; inset: 0; z-index: 800;
-  background: rgba(26,48,9,.6); backdrop-filter: blur(4px);
+  background: rgba(26,48,9,.6); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   display: flex; align-items: center; justify-content: center; padding: 16px;
   opacity: 0; visibility: hidden; transition: var(--transition);
 }
@@ -596,12 +601,14 @@ canvas { max-width: 100%; }
   #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
   #sidebar.mobile-open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,.3); }
   #main { margin-left: 0; }
-  .topbar-toggle { display: block; }
+  .topbar-toggle { display: flex; }
   .content-area { padding: 16px; }
   .form-row, .form-row-3 { grid-template-columns: 1fr; }
   .stats-grid { grid-template-columns: 1fr 1fr; }
   .modal-box { max-height: 95vh; }
   .group-cards-grid { grid-template-columns: 1fr; }
+  /* JS-replaced responsive grids */
+  .responsive-2col { grid-template-columns: 1fr !important; }
 }
 @media (max-width: 480px) {
   .stats-grid { grid-template-columns: 1fr; }
@@ -644,7 +651,7 @@ canvas { max-width: 100%; }
 <!-- ============================================================
      SPLASH SCREEN
      ============================================================ -->
-<div id="splash">
+<div id="splash" role="status" aria-label="Loading LivestockPro">
   <div class="splash-logo">Livestock<span>Pro</span></div>
   <div class="splash-tagline">🌾 Farm Business Intelligence System</div>
   <div class="splash-status">
@@ -664,7 +671,7 @@ canvas { max-width: 100%; }
 <div id="app" class="hidden">
 
   <!-- SIDEBAR -->
-  <aside id="sidebar">
+  <aside id="sidebar" aria-label="Main navigation">
     <div class="sidebar-brand">
       <h1>Livestock<span>Pro</span></h1>
       <p>🌾 Farm Business Manager</p>
@@ -673,26 +680,26 @@ canvas { max-width: 100%; }
       <div class="conn-dot" id="conn-dot"></div>
       <span id="conn-label">Connected</span>
     </div>
-    <nav>
+    <nav aria-label="Main navigation">
       <div class="nav-section">Main</div>
-      <div class="nav-item active" data-page="dashboard">
+      <div class="nav-item active" data-page="dashboard" tabindex="0" role="button" aria-current="page">
         <span class="nav-icon">📊</span> Dashboard
       </div>
-      <div class="nav-item" data-page="groups">
+      <div class="nav-item" data-page="groups" tabindex="0" role="button">
         <span class="nav-icon">🐄</span> Groups & Animals
       </div>
       <div class="nav-section">Operations</div>
-      <div class="nav-item" data-page="inputs">
+      <div class="nav-item" data-page="inputs" tabindex="0" role="button">
         <span class="nav-icon">💊</span> Supply Log
       </div>
-      <div class="nav-item" data-page="revenue">
+      <div class="nav-item" data-page="revenue" tabindex="0" role="button">
         <span class="nav-icon">💰</span> Revenue & Sales
       </div>
       <div class="nav-section">Insights</div>
-      <div class="nav-item" data-page="reports">
+      <div class="nav-item" data-page="reports" tabindex="0" role="button">
         <span class="nav-icon">📈</span> Reports
       </div>
-      <div class="nav-item" data-page="settings">
+      <div class="nav-item" data-page="settings" tabindex="0" role="button">
         <span class="nav-icon">⚙️</span> Settings
       </div>
     </nav>
@@ -705,9 +712,9 @@ canvas { max-width: 100%; }
   <!-- MAIN -->
   <main id="main">
     <header class="topbar">
-      <button class="topbar-toggle" id="sidebar-toggle">☰</button>
-      <button class="topbar-back" id="topbar-back">◀ Back</button>
-      <div class="topbar-title" id="page-title">Dashboard</div>
+      <button class="topbar-toggle" id="sidebar-toggle" aria-label="Toggle navigation menu" aria-expanded="false">☰</button>
+      <button class="topbar-back" id="topbar-back" aria-label="Go back to previous page">◀ Back</button>
+      <div class="topbar-title" id="page-title" aria-live="polite" aria-atomic="true">Dashboard</div>
       <div class="topbar-actions" id="topbar-actions"></div>
     </header>
     <div class="content-area" id="content-area"></div>
@@ -718,11 +725,11 @@ canvas { max-width: 100%; }
 <!-- ============================================================
      MODALS
      ============================================================ -->
-<div class="modal-backdrop" id="modal-backdrop">
+<div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
   <div class="modal-box" id="modal-box">
     <div class="modal-header">
       <span class="modal-title" id="modal-title">Title</span>
-      <button class="modal-close" id="modal-close">✕</button>
+      <button class="modal-close" id="modal-close" aria-label="Close dialog">✕</button>
     </div>
     <div class="modal-body" id="modal-body"></div>
     <div class="modal-footer" id="modal-footer"></div>
@@ -730,7 +737,7 @@ canvas { max-width: 100%; }
 </div>
 
 <!-- CONFIRM DIALOG -->
-<div id="confirm-backdrop">
+<div id="confirm-backdrop" role="alertdialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-msg">
   <div class="confirm-box">
     <div class="confirm-icon" id="confirm-icon">⚠️</div>
     <div class="confirm-title" id="confirm-title">Are you sure?</div>
@@ -764,7 +771,7 @@ const State = {
     defaultPricePerKilo: 200,
     businessName: 'My Farm',
     ownerName: 'Farm Owner',
-    appsScriptUrl: 'https://script.google.com/macros/s/AKfycbwmUTLCv5gP6yuj4OfByQjqmFmEeC7ewq-svakMHo5M9oyY-WElKS-tbxxCiBBLjCY3Eg/exec'
+    appsScriptUrl: ''
   },
   isDemo: false,
   isConnected: false,
@@ -774,7 +781,8 @@ const State = {
   productHistory: [],     // for combobox memory
 
   get activeAnimals() {
-    return this.animals.filter(a => a.status === 'active');
+    const activeGroupIds = new Set(this.groups.filter(g => g.status === 'active').map(g => g.groupId));
+    return this.animals.filter(a => a.status === 'active' && activeGroupIds.has(a.groupId));
   },
   get activeGroups() {
     return this.groups.filter(g => g.status === 'active');
@@ -790,6 +798,7 @@ const fmtNum = (n, d=2) => Number(n||0).toLocaleString('en', {minimumFractionDig
 const fmtDate = (d) => { if(!d) return '—'; const dt = new Date(d); return isNaN(dt) ? d : dt.toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'}); };
 const today = () => new Date().toISOString().split('T')[0];
 const debounce = (fn, ms=300) => { let t; return (...a) => { clearTimeout(t); t = setTimeout(()=>fn(...a), ms); }; };
+const esc = (s) => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
 function ageDisplay(dateAcquired, ageAtAcqValue, ageAtAcqUnit) {
   if (!dateAcquired) return '—';
@@ -962,7 +971,8 @@ const API = {
   async saveSale(sale) { return this.call('saveSale', { sale }); },
   async deleteAnimal(animalId) { return this.call('deleteAnimal', { animalId }); },
   async deleteGroup(groupId) { return this.call('deleteGroup', { groupId }); },
-  async saveSettings(settings) { return this.call('saveSettings', { settings }); }
+  async saveSettings(settings) { return this.call('saveSettings', { settings }); },
+  async deleteInput(inputId) { return this.call('deleteInput', { inputId }); }
 };
 
 /* =============================================================
@@ -985,36 +995,61 @@ const Toast = {
 /* =============================================================
    CONFIRM DIALOG
    ============================================================= */
-const Confirm = {
-  resolve: null,
-  show(title, msg, icon='⚠️') {
-    document.getElementById('confirm-icon').textContent = icon;
-    document.getElementById('confirm-title').textContent = title;
-    document.getElementById('confirm-msg').textContent = msg;
-    document.getElementById('confirm-backdrop').classList.add('open');
-    return new Promise(res => { this.resolve = res; });
-  },
-  close(val) {
-    document.getElementById('confirm-backdrop').classList.remove('open');
-    if (this.resolve) { this.resolve(val); this.resolve = null; }
-  }
-};
-
-/* =============================================================
-   MODAL
-   ============================================================= */
 const Modal = {
+  _prevFocus: null,
+  _trapHandler: null,
   show(title, bodyHTML, footerHTML='') {
+    this._prevFocus = document.activeElement;
     document.getElementById('modal-title').textContent = title;
     document.getElementById('modal-body').innerHTML = bodyHTML;
     document.getElementById('modal-footer').innerHTML = footerHTML;
     document.getElementById('modal-backdrop').classList.add('open');
     document.getElementById('modal-box').scrollTop = 0;
+    // Focus first interactive element
+    setTimeout(() => {
+      const focusable = document.getElementById('modal-box').querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      if (focusable.length) focusable[0].focus();
+    }, 50);
+    this._trapHandler = (e) => trapFocusIn('modal-box', e);
+    document.getElementById('modal-box').addEventListener('keydown', this._trapHandler);
   },
-  close() { document.getElementById('modal-backdrop').classList.remove('open'); },
+  close() {
+    document.getElementById('modal-backdrop').classList.remove('open');
+    if (this._trapHandler) { document.getElementById('modal-box').removeEventListener('keydown', this._trapHandler); this._trapHandler = null; }
+    if (this._prevFocus) { this._prevFocus.focus(); this._prevFocus = null; }
+  },
   setFooter(html) { document.getElementById('modal-footer').innerHTML = html; },
   body() { return document.getElementById('modal-body'); }
 };
+
+const Confirm = {
+  resolve: null,
+  _prevFocus: null,
+  show(title, msg, icon='⚠️') {
+    this._prevFocus = document.activeElement;
+    document.getElementById('confirm-icon').textContent = icon;
+    document.getElementById('confirm-title').textContent = title;
+    document.getElementById('confirm-msg').textContent = msg;
+    document.getElementById('confirm-backdrop').classList.add('open');
+    setTimeout(() => document.getElementById('confirm-ok').focus(), 50);
+    return new Promise(res => { this.resolve = res; });
+  },
+  close(val) {
+    document.getElementById('confirm-backdrop').classList.remove('open');
+    if (this.resolve) { this.resolve(val); this.resolve = null; }
+    if (this._prevFocus) { this._prevFocus.focus(); this._prevFocus = null; }
+  }
+};
+
+function trapFocusIn(containerId, e) {
+  if (e.key !== 'Tab') return;
+  const container = document.getElementById(containerId);
+  const focusable = container.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+  if (!focusable.length) return;
+  const first = focusable[0], last = focusable[focusable.length - 1];
+  if (e.shiftKey) { if (document.activeElement === first) { e.preventDefault(); last.focus(); } }
+  else { if (document.activeElement === last) { e.preventDefault(); first.focus(); } }
+}
 
 /* =============================================================
    DEMO DATA
@@ -1126,9 +1161,16 @@ function updateConnStatus() {
   const dot = document.getElementById('conn-dot');
   const lbl = document.getElementById('conn-label');
   dot.className = 'conn-dot';
-  if (State.isDemo) { dot.classList.add('demo'); lbl.textContent = 'Demo Mode'; }
-  else if (State.isConnected) { lbl.textContent = 'Connected'; }
-  else { dot.classList.add('offline'); lbl.textContent = 'Offline'; }
+  if (State.isDemo) {
+    dot.classList.add('demo');
+    lbl.textContent = 'Demo Mode';
+  } else if (State.isConnected) {
+    // default green dot — no extra class needed
+    lbl.textContent = 'Connected';
+  } else {
+    dot.classList.add('offline');
+    lbl.textContent = 'Offline';
+  }
 }
 
 function updateSidebarMeta() {
@@ -1143,12 +1185,15 @@ let _eventsReady = false;
 function setupGlobalEvents() {
   if (_eventsReady) return;   // prevent duplicate listeners on re-init
   _eventsReady = true;
-  // Nav
+  // Nav — click and keyboard
   document.querySelectorAll('.nav-item').forEach(el => {
     el.addEventListener('click', () => {
       State.currentGroupId = null;
-      State.pageHistory = [];   // top-level nav clears back stack
+      State.pageHistory = [];
       navigateTo(el.dataset.page);
+    });
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); el.click(); }
     });
   });
 
@@ -1187,12 +1232,15 @@ function toggleSidebar() {
   const sb = document.getElementById('sidebar');
   const main = document.getElementById('main');
   const overlay = document.getElementById('sidebar-overlay');
+  const toggle = document.getElementById('sidebar-toggle');
   if (window.innerWidth <= 768) {
-    sb.classList.toggle('mobile-open');
-    overlay.style.display = sb.classList.contains('mobile-open') ? 'block' : 'none';
+    const isOpen = sb.classList.toggle('mobile-open');
+    overlay.style.display = isOpen ? 'block' : 'none';
+    toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
   } else {
-    sb.classList.toggle('collapsed');
+    const isCollapsed = sb.classList.toggle('collapsed');
     main.classList.toggle('expanded');
+    toggle.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
   }
 }
 
@@ -1229,7 +1277,11 @@ function navigateTo(page, opts = {}) {
   State.currentPage = page;
   if (!opts.keepGroup) State.currentGroupId = opts.groupId || null;
 
-  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  document.querySelectorAll('.nav-item').forEach(el => {
+    const isActive = el.dataset.page === page;
+    el.classList.toggle('active', isActive);
+    el.setAttribute('aria-current', isActive ? 'page' : 'false');
+  });
   const titles = { dashboard:'📊 Dashboard', groups:'🐄 Groups & Animals', inputs:'💊 Supply Log', revenue:'💰 Revenue & Sales', reports:'📈 Reports & Analytics', settings:'⚙️ Settings' };
   document.getElementById('page-title').textContent = titles[page] || page;
   document.getElementById('topbar-actions').innerHTML = '';
@@ -1323,7 +1375,7 @@ function renderDashboard() {
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;flex-wrap:wrap" class="mb-16" id="db-bottom-grid">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px" class="mb-16 responsive-2col" id="db-bottom-grid">
       <div class="card" id="db-groups-card">
         <div class="card-header">
           <span class="card-title">🐄 Active Groups</span>
@@ -1340,10 +1392,6 @@ function renderDashboard() {
     </div>
   `;
 
-  // Responsive grid
-  const grid = document.getElementById('db-bottom-grid');
-  if (window.innerWidth < 700) grid.style.gridTemplateColumns = '1fr';
-
   // Groups mini list
   const gbody = document.getElementById('db-groups-body');
   if (State.activeGroups.length === 0) {
@@ -1353,10 +1401,10 @@ function renderDashboard() {
       const animals = State.animals.filter(a=>a.groupId===g.groupId && a.status==='active');
       const projRev = animals.reduce((s,a)=>s+Compute.projectedGross(a),0);
       const inputCost = Compute.groupInputCost(g.groupId);
-      return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--brown-100);cursor:pointer" class="db-group-row" data-gid="${g.groupId}">
+      return `<div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--brown-100);cursor:pointer" class="db-group-row" data-gid="${esc(g.groupId)}">
         <span style="font-size:1.6rem">${animalTypeIcon(g.animalType)}</span>
         <div style="flex:1">
-          <div style="font-weight:600;font-size:.9rem">${g.groupName}</div>
+          <div style="font-weight:600;font-size:.9rem">${esc(g.groupName)}</div>
           <div style="font-size:.75rem;color:var(--brown-400)">${animals.length} animal${animals.length!==1?'s':''} · Input: ${fmtCur(inputCost)}</div>
         </div>
         <div style="text-align:right">
@@ -1373,10 +1421,10 @@ function renderDashboard() {
   // Activity feed
   const activities = [
     ...State.inputs.slice(-6).map(i => ({
-      icon:'💊', title:`${i.productName} logged`, sub:`${fmtDate(i.date)} · ${i.inputType}`, amount: fmtCur(i.totalCost), ts: i.date
+      icon:'💊', title:`${esc(i.productName)} logged`, sub:`${fmtDate(i.date)} · ${esc(i.inputType)}`, amount: fmtCur(i.totalCost), ts: i.date
     })),
     ...State.sales.slice(-4).map(s => ({
-      icon:'💰', title:`Sale: ${s.animalName||'Animal'}`, sub:`${fmtDate(s.date)} · ${s.buyerName||''}`, amount: fmtCur(s.grossRevenue), ts: s.date
+      icon:'💰', title:`Sale: ${esc(s.animalName||'Animal')}`, sub:`${fmtDate(s.date)} · ${esc(s.buyerName||'')}`, amount: fmtCur(s.grossRevenue), ts: s.date
     }))
   ].sort((a,b) => new Date(b.ts)-new Date(a.ts)).slice(0,10);
 
@@ -1442,8 +1490,8 @@ function renderGroupsPage() {
       <div class="group-card-header">
         <span class="group-card-icon">${animalTypeIcon(g.animalType)}</span>
         <div class="group-card-info">
-          <h3>${g.groupName}</h3>
-          <p>${g.animalType} · ${g.description || 'No description'}</p>
+          <h3>${esc(g.groupName)}</h3>
+          <p>${esc(g.animalType)} · ${esc(g.description || 'No description')}</p>
         </div>
       </div>
       <div class="group-card-body">
@@ -1459,9 +1507,9 @@ function renderGroupsPage() {
         </div>
       </div>
       <div class="group-card-actions">
-        <button class="btn btn-primary btn-sm gc-view" data-gid="${g.groupId}">View Group</button>
-        <button class="btn btn-outline btn-sm gc-addanimal" data-gid="${g.groupId}">+ Animal</button>
-        <button class="btn btn-ghost btn-sm gc-archive" data-gid="${g.groupId}">Archive</button>
+        <button class="btn btn-primary btn-sm gc-view" data-gid="${esc(g.groupId)}">View Group</button>
+        <button class="btn btn-outline btn-sm gc-addanimal" data-gid="${esc(g.groupId)}">+ Animal</button>
+        <button class="btn btn-ghost btn-sm gc-archive" data-gid="${esc(g.groupId)}">Archive</button>
       </div>
     </div>`;
   }).join('');
@@ -1492,15 +1540,15 @@ function renderGroupDetail(groupId) {
     <div class="breadcrumb">
       <span class="bc-link" id="bc-back">← Groups</span>
       <span class="bc-sep">›</span>
-      <span>${group.groupName}</span>
+      <span>${esc(group.groupName)}</span>
     </div>
 
     <div class="group-detail-banner">
       <div class="gdb-top">
         <span class="gdb-icon">${animalTypeIcon(group.animalType)}</span>
         <div class="gdb-title">
-          <h2>${group.groupName}</h2>
-          <p>${group.animalType} · ${group.description||''} · Created ${fmtDate(group.dateCreated)}</p>
+          <h2>${esc(group.groupName)}</h2>
+          <p>${esc(group.animalType)} · ${esc(group.description||'')} · Created ${fmtDate(group.dateCreated)}</p>
         </div>
       </div>
       <div class="gdb-stats">
@@ -1516,7 +1564,7 @@ function renderGroupDetail(groupId) {
     </div>
 
     <div class="section-header">
-      <div><div class="section-title">Animals in ${group.groupName}</div></div>
+      <div><div class="section-title">Animals in ${esc(group.groupName)}</div></div>
       <button class="btn btn-amber" id="gd-add-animal">+ Add Animal</button>
     </div>
 
@@ -1549,9 +1597,9 @@ function renderGroupDetail(groupId) {
     const profit = Compute.projectedNetProfit(a);
     const rowClass = profit > gross*0.2 ? 'row-green' : profit < 0 ? 'row-red' : 'row-yellow';
     return `<tr class="${rowClass}">
-      <td><strong>${a.name}</strong></td>
-      <td><span class="badge ${a.gender==='male'?'badge-blue':a.gender==='female'?'badge-amber':'badge-gray'}">${a.gender||'?'}</span></td>
-      <td>${ageDisplay(a.dateAcquired, a.ageAtAcqValue, a.ageAtAcqUnit)}</td>
+      <td><strong>${esc(a.name)}</strong></td>
+      <td><span class="badge ${a.gender==='male'?'badge-blue':a.gender==='female'?'badge-amber':'badge-gray'}">${esc(a.gender||'?')}</span></td>
+      <td>${esc(ageDisplay(a.dateAcquired, a.ageAtAcqValue, a.ageAtAcqUnit))}</td>
       <td><strong>${fmtNum(a.currentWeightKg)}</strong><br><span class="text-sm text-muted">${daysOnFarm(a.dateAcquired)}d on farm</span></td>
       <td>${Compute.weightGain(a)>0?'+':''}${fmtNum(Compute.weightGain(a))}</td>
       <td>${fmtCur(a.acquisitionCost)}</td>
@@ -1561,8 +1609,8 @@ function renderGroupDetail(groupId) {
       <td>${healthBadge(a.healthStatus)}</td>
       <td>
         <div class="flex gap-8">
-          <button class="btn btn-sm btn-outline an-edit" data-aid="${a.animalId}">Edit</button>
-          <button class="btn btn-sm btn-danger an-del" data-aid="${a.animalId}">Del</button>
+          <button class="btn btn-sm btn-outline an-edit" data-aid="${esc(a.animalId)}">Edit</button>
+          <button class="btn btn-sm btn-danger an-del" data-aid="${esc(a.animalId)}">Delete</button>
         </div>
       </td>
     </tr>`;
@@ -1598,35 +1646,35 @@ function showAddAnimalModal(groupId, animalId) {
   const body = `
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Animal Name *</label>
-        <input class="form-control" id="am-name" placeholder="e.g. Porky" value="${v.name||''}">
+        <label class="form-label" for="am-name">Animal Name *</label>
+        <input class="form-control" id="am-name" placeholder="e.g. Porky" value="${esc(v.name||'')}">
       </div>
       <div class="form-group">
-        <label class="form-label">Group *</label>
+        <label class="form-label" for="am-group">Group *</label>
         <select class="form-control" id="am-group">${gOptions}</select>
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Gender</label>
-      <div class="seg-btn-group">
+      <label class="form-label" id="am-gender-label">Gender</label>
+      <div class="seg-btn-group" role="group" aria-labelledby="am-gender-label">
         <button class="seg-btn ${v.gender==='male'?'active':''}" data-val="male">♂ Male</button>
         <button class="seg-btn ${v.gender==='female'?'active':''}" data-val="female">♀ Female</button>
         <button class="seg-btn ${(!v.gender||v.gender==='unknown')?'active':''}" data-val="unknown">? Unknown</button>
       </div>
-      <input type="hidden" id="am-gender" value="${v.gender||'unknown'}">
+      <input type="hidden" id="am-gender" value="${esc(v.gender||'unknown')}">
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Breed</label>
+        <label class="form-label" for="am-breed">Breed</label>
         <div class="combobox-wrap">
-          <input class="form-control" id="am-breed" placeholder="Type or select..." autocomplete="off" value="${v.breed||''}">
+          <input class="form-control" id="am-breed" placeholder="Type or select..." autocomplete="off" value="${esc(v.breed||'')}">
           <div class="combobox-list" id="am-breed-list">
-            ${breeds.map(b=>`<div class="combobox-option">${b}</div>`).join('')}
+            ${breeds.map(b=>`<div class="combobox-option">${esc(b)}</div>`).join('')}
           </div>
         </div>
       </div>
       <div class="form-group">
-        <label class="form-label">Health Status</label>
+        <label class="form-label" for="am-health">Health Status</label>
         <select class="form-control" id="am-health">
           ${['healthy','sick','recovering','quarantine'].map(h=>`<option value="${h}" ${v.healthStatus===h?'selected':''}>${h.charAt(0).toUpperCase()+h.slice(1)}</option>`).join('')}
         </select>
@@ -1634,14 +1682,14 @@ function showAddAnimalModal(groupId, animalId) {
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Date Acquired *</label>
+        <label class="form-label" for="am-date">Date Acquired *</label>
         <input type="date" class="form-control" id="am-date" value="${v.dateAcquired||today()}">
       </div>
       <div class="form-group">
-        <label class="form-label">Age at Acquisition</label>
+        <label class="form-label" for="am-age-val">Age at Acquisition</label>
         <div style="display:flex;gap:6px">
-          <input type="number" class="form-control" id="am-age-val" min="0" value="${v.ageAtAcqValue||0}" style="flex:1">
-          <select class="form-control" id="am-age-unit" style="width:120px">
+          <input type="number" class="form-control" id="am-age-val" min="0" value="${v.ageAtAcqValue||0}" style="flex:1" aria-label="Age value">
+          <select class="form-control" id="am-age-unit" style="width:120px" aria-label="Age unit">
             ${['days','weeks','months','years'].map(u=>`<option value="${u}" ${v.ageAtAcqUnit===u?'selected':''}>${u}</option>`).join('')}
           </select>
         </div>
@@ -1649,29 +1697,29 @@ function showAddAnimalModal(groupId, animalId) {
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Acquisition Type</label>
+        <label class="form-label" for="am-acqtype">Acquisition Type</label>
         <select class="form-control" id="am-acqtype">
           ${['purchased','born','gifted','traded'].map(t=>`<option value="${t}" ${v.acquisitionType===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
         </select>
       </div>
       <div class="form-group">
-        <label class="form-label">Acquisition Cost (${State.settings.currency})</label>
+        <label class="form-label" for="am-cost">Acquisition Cost (${esc(State.settings.currency)})</label>
         <input type="number" class="form-control" id="am-cost" min="0" value="${v.acquisitionCost||0}" placeholder="0.00">
       </div>
     </div>
     <div class="form-row">
       <div class="form-group">
-        <label class="form-label">Initial Weight (kg)</label>
+        <label class="form-label" for="am-init-wt">Initial Weight (kg)</label>
         <input type="number" class="form-control" id="am-init-wt" min="0" step="0.1" value="${v.initialWeightKg||''}">
       </div>
       <div class="form-group">
-        <label class="form-label">Current Weight (kg)</label>
+        <label class="form-label" for="am-curr-wt">Current Weight (kg)</label>
         <input type="number" class="form-control" id="am-curr-wt" min="0" step="0.1" value="${v.currentWeightKg||''}">
       </div>
     </div>
     <div class="form-group">
-      <label class="form-label">Notes</label>
-      <textarea class="form-control" id="am-notes" rows="2" placeholder="Optional notes...">${v.notes||''}</textarea>
+      <label class="form-label" for="am-notes">Notes</label>
+      <textarea class="form-control" id="am-notes" rows="2" placeholder="Optional notes...">${esc(v.notes||'')}</textarea>
     </div>
     <div style="display:flex;gap:12px;flex-wrap:wrap" id="am-computed">
       <div class="form-computed">📅 Age: <span id="am-c-age">—</span></div>
@@ -1735,6 +1783,16 @@ function setupCombobox(inputId, listId, options) {
   const list = document.getElementById(listId);
   if (!input || !list) return;
 
+  // Render initial options safely
+  list.innerHTML = '';
+  options.forEach(o => {
+    const div = document.createElement('div');
+    div.className = 'combobox-option';
+    div.textContent = o;
+    div.addEventListener('click', () => { input.value = o; list.classList.remove('open'); });
+    list.appendChild(div);
+  });
+
   input.addEventListener('focus', () => {
     filterCombobox(input, list, options);
     list.classList.add('open');
@@ -1743,17 +1801,18 @@ function setupCombobox(inputId, listId, options) {
   document.addEventListener('click', e => {
     if (!input.contains(e.target) && !list.contains(e.target)) list.classList.remove('open');
   }, true);
-  list.querySelectorAll('.combobox-option').forEach(opt => {
-    opt.addEventListener('click', () => { input.value = opt.textContent; list.classList.remove('open'); });
-  });
 }
 
 function filterCombobox(input, list, options) {
   const q = input.value.toLowerCase();
   const filtered = options.filter(o => o.toLowerCase().includes(q));
-  list.innerHTML = filtered.map(b=>`<div class="combobox-option">${b}</div>`).join('');
-  list.querySelectorAll('.combobox-option').forEach(opt => {
-    opt.addEventListener('click', () => { input.value = opt.textContent; list.classList.remove('open'); });
+  list.innerHTML = '';
+  filtered.forEach(b => {
+    const div = document.createElement('div');
+    div.className = 'combobox-option';
+    div.textContent = b;
+    div.addEventListener('click', () => { input.value = b; list.classList.remove('open'); });
+    list.appendChild(div);
   });
 }
 
@@ -1782,6 +1841,7 @@ async function saveAnimal(animalId, groupId) {
   };
 
   const saveBtn = document.getElementById('am-save');
+  const origLabel = saveBtn.textContent;
   saveBtn.disabled = true; saveBtn.textContent = 'Saving…';
 
   try {
@@ -1789,11 +1849,11 @@ async function saveAnimal(animalId, groupId) {
     const idx = State.animals.findIndex(a=>a.animalId===animal.animalId);
     if (idx>=0) State.animals[idx]=animal; else State.animals.push(animal);
     Modal.close();
-    Toast.show(`Animal "${name}" ${animalId?'updated':'added'} successfully!`, 'success');
+    Toast.show(`Animal "${esc(name)}" ${animalId?'updated':'added'} successfully!`, 'success');
     if (State.currentGroupId) renderGroupDetail(State.currentGroupId); else renderGroupsPage();
   } catch(e) {
     Toast.show('Error saving: ' + e.message, 'error');
-    saveBtn.disabled = false; saveBtn.textContent = 'Save Animal';
+    saveBtn.disabled = false; saveBtn.textContent = origLabel;
   }
 }
 
@@ -1969,18 +2029,22 @@ function renderInputsTable() {
     }
     return `<tr>
       <td>${fmtDate(inp.date)}</td>
-      <td><span class="badge badge-${inp.inputType==='medicine'?'red':inp.inputType==='food'?'green':'amber'}">${typeIcons[inp.inputType]||'📦'} ${inp.inputType||'?'}</span></td>
-      <td><strong>${inp.productName||'—'}</strong></td>
+      <td><span class="badge badge-${inp.inputType==='medicine'?'red':inp.inputType==='food'?'green':'amber'}">${typeIcons[inp.inputType]||'📦'} ${esc(inp.inputType||'?')}</span></td>
+      <td><strong>${esc(inp.productName||'—')}</strong></td>
       <td>${fmtNum(inp.quantity,1)}</td>
-      <td>${inp.unit||''}</td>
+      <td>${esc(inp.unit||'')}</td>
       <td>${fmtCur(inp.unitCost)}</td>
       <td><strong>${fmtCur(inp.totalCost)}</strong></td>
       <td style="max-width:160px;white-space:normal;font-size:.8rem">${recText}</td>
-      <td class="text-muted text-sm">${inp.administeredBy||'—'}</td>
-      <td><button class="btn-icon inp-del" data-iid="${inp.inputId}" title="Delete">🗑️</button></td>
+      <td class="text-muted text-sm">${esc(inp.administeredBy||'—')}</td>
+      <td><div class="flex gap-8">
+        <button class="btn-icon inp-edit" data-iid="${esc(inp.inputId)}" aria-label="Edit input">✏️</button>
+        <button class="btn-icon inp-del" data-iid="${esc(inp.inputId)}" aria-label="Delete input">🗑️</button>
+      </div></td>
     </tr>`;
   }).join('');
 
+  tbody.querySelectorAll('.inp-edit').forEach(b => b.addEventListener('click', () => showEditInputModal(b.dataset.iid)));
   tbody.querySelectorAll('.inp-del').forEach(b => b.addEventListener('click', () => deleteInput(b.dataset.iid)));
 }
 
@@ -2031,7 +2095,7 @@ function showLogInputModal() {
     </div>
     <div class="form-group">
       <label class="form-label">Total Cost</label>
-      <div class="form-computed" id="im-total">₱0.00</div>
+      <div class="form-computed" id="im-total">${fmtCur(0)}</div>
     </div>
     <div class="form-group">
       <label class="form-label">Recipient Animals *</label>
@@ -2110,6 +2174,7 @@ async function saveInput() {
   if (!product) { Toast.show('Product name is required.','error'); return; }
   const qty = parseFloat(document.getElementById('im-qty').value)||0;
   const uc  = parseFloat(document.getElementById('im-ucost').value)||0;
+  if (qty <= 0) { Toast.show('Quantity must be greater than 0.','error'); return; }
 
   const allCb = document.getElementById('ms-all-cb');
   let recipientIds;
@@ -2149,9 +2214,184 @@ async function saveInput() {
 async function deleteInput(inputId) {
   const ok = await Confirm.show('Delete this input entry?','This cannot be undone.','🗑️');
   if (!ok) return;
-  State.inputs = State.inputs.filter(i=>i.inputId!==inputId);
-  Toast.show('Input deleted.','info');
-  renderInputsPage();
+  try {
+    if (!State.isDemo) await API.deleteInput(inputId);
+    State.inputs = State.inputs.filter(i=>i.inputId!==inputId);
+    Toast.show('Input deleted.','info');
+    renderInputsPage();
+  } catch(e) { Toast.show('Error deleting: '+e.message,'error'); }
+}
+
+function showEditInputModal(inputId) {
+  const inp = State.inputs.find(i => i.inputId === inputId);
+  if (!inp) { Toast.show('Input not found.', 'error'); return; }
+
+  const unitOptions = ['kg','g','L','mL','pack','tablet','sachet','dose','bottle','piece','other'];
+  const typeOptions = ['food','medicine','vitamin','supplement','water','other'];
+
+  const isAll = inp.recipientAnimalIds === 'ALL' ||
+    (Array.isArray(inp.recipientAnimalIds) && inp.recipientAnimalIds.includes('ALL'));
+  const selectedIds = isAll ? [] : (inp.recipientAnimalIds || []);
+
+  Modal.show(`Edit Input — ${inp.productName}`, `
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Date *</label>
+        <input type="date" class="form-control" id="im-date" value="${esc(inp.date||'')}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Input Type *</label>
+        <select class="form-control" id="im-type">
+          ${typeOptions.map(t=>`<option value="${t}" ${inp.inputType===t?'selected':''}>${t.charAt(0).toUpperCase()+t.slice(1)}</option>`).join('')}
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Product Name *</label>
+      <div class="combobox-wrap">
+        <input class="form-control" id="im-product" placeholder="e.g. Hog Finisher Feed" autocomplete="off" value="${esc(inp.productName||'')}">
+        <div class="combobox-list" id="im-product-list">
+          ${State.productHistory.map(p=>`<div class="combobox-option">${p}</div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="form-row-3">
+      <div class="form-group">
+        <label class="form-label">Quantity *</label>
+        <input type="number" class="form-control" id="im-qty" min="0" step="0.01" value="${esc(inp.quantity||'')}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit</label>
+        <div class="combobox-wrap">
+          <input class="form-control" id="im-unit" placeholder="kg" autocomplete="off" value="${esc(inp.unit||'')}">
+          <div class="combobox-list" id="im-unit-list">
+            ${unitOptions.map(u=>`<div class="combobox-option">${u}</div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Unit Cost (${State.settings.currency})</label>
+        <input type="number" class="form-control" id="im-ucost" min="0" step="0.01" value="${esc(inp.unitCost||'')}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Total Cost</label>
+      <div class="form-computed" id="im-total">${fmtCur((inp.quantity||0)*(inp.unitCost||0))}</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Recipient Animals *</label>
+      <div class="multi-select-wrap">
+        <div class="multi-select-trigger" id="ms-trigger">
+          <span id="ms-label">Select animals…</span>
+          <span>▾</span>
+        </div>
+        <div class="multi-select-panel" id="ms-panel">
+          <div class="ms-item ms-all">
+            <input type="checkbox" id="ms-all-cb" ${isAll?'checked':''}> <label for="ms-all-cb" style="cursor:pointer;font-weight:600">✅ Select All Animals</label>
+          </div>
+          ${State.activeGroups.map(g => {
+            const gAnimals = State.activeAnimals.filter(a=>a.groupId===g.groupId);
+            if (!gAnimals.length) return '';
+            return `<div class="ms-group-label">${animalTypeIcon(g.animalType)} ${g.groupName}</div>
+            ${gAnimals.map(a=>`<div class="ms-item">
+              <input type="checkbox" class="ms-animal-cb" id="ms-${a.animalId}" value="${a.animalId}" ${(isAll||selectedIds.includes(a.animalId))?'checked':''}>
+              <label for="ms-${a.animalId}" style="cursor:pointer">${a.name} <span class="text-muted text-sm">(${fmtNum(a.currentWeightKg)}kg)</span></label>
+            </div>`).join('')}`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Administered By</label>
+        <input class="form-control" id="im-by" placeholder="Name" value="${esc(inp.administeredBy||'')}">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Notes</label>
+        <input class="form-control" id="im-notes" placeholder="Optional" value="${esc(inp.notes||'')}">
+      </div>
+    </div>
+  `, `
+    <button class="btn btn-ghost" id="im-cancel">Cancel</button>
+    <button class="btn btn-amber" id="im-save">💾 Update Input</button>
+  `);
+
+  setupCombobox('im-product','im-product-list', State.productHistory);
+  setupCombobox('im-unit','im-unit-list', unitOptions);
+
+  // Multi-select toggle
+  const trigger = document.getElementById('ms-trigger');
+  const panel = document.getElementById('ms-panel');
+  trigger.addEventListener('click', () => panel.classList.toggle('open'));
+  document.addEventListener('click', e => { if (!trigger.contains(e.target) && !panel.contains(e.target)) panel.classList.remove('open'); }, true);
+
+  // Select all
+  const allCb = document.getElementById('ms-all-cb');
+  const animalCbs = () => document.querySelectorAll('.ms-animal-cb');
+  allCb.addEventListener('change', () => { animalCbs().forEach(cb => cb.checked = allCb.checked); updateMsLabel(); });
+  panel.addEventListener('change', e => { if (e.target.classList.contains('ms-animal-cb')) { allCb.checked = [...animalCbs()].every(cb=>cb.checked); updateMsLabel(); } });
+
+  function updateMsLabel() {
+    const total = animalCbs().length;
+    const checked = [...animalCbs()].filter(cb=>cb.checked).length;
+    document.getElementById('ms-label').textContent = checked===0 ? 'Select animals…' : checked===total ? `All ${total} animals selected` : `${checked} of ${total} animals selected`;
+  }
+  updateMsLabel();
+
+  // Auto-compute total
+  const computeTotal = () => {
+    const qty = parseFloat(document.getElementById('im-qty').value)||0;
+    const uc = parseFloat(document.getElementById('im-ucost').value)||0;
+    document.getElementById('im-total').textContent = fmtCur(qty*uc);
+  };
+  document.getElementById('im-qty').addEventListener('input', computeTotal);
+  document.getElementById('im-ucost').addEventListener('input', computeTotal);
+
+  document.getElementById('im-cancel').addEventListener('click', Modal.close);
+  document.getElementById('im-save').addEventListener('click', () => saveEditInput(inputId));
+}
+
+async function saveEditInput(inputId) {
+  const product = document.getElementById('im-product').value.trim();
+  if (!product) { Toast.show('Product name is required.', 'error'); return; }
+  const qty = parseFloat(document.getElementById('im-qty').value)||0;
+  const uc  = parseFloat(document.getElementById('im-ucost').value)||0;
+  if (qty <= 0) { Toast.show('Quantity must be greater than 0.', 'error'); return; }
+
+  const allCb = document.getElementById('ms-all-cb');
+  let recipientIds;
+  if (allCb.checked) {
+    recipientIds = 'ALL';
+  } else {
+    recipientIds = [...document.querySelectorAll('.ms-animal-cb:checked')].map(cb=>cb.value);
+    if (!recipientIds.length) { Toast.show('Please select at least one animal.', 'error'); return; }
+  }
+
+  const updated = {
+    inputId,
+    date: document.getElementById('im-date').value,
+    inputType: document.getElementById('im-type').value,
+    productName: product,
+    unit: document.getElementById('im-unit').value,
+    quantity: qty,
+    unitCost: uc,
+    totalCost: qty * uc,
+    recipientAnimalIds: recipientIds,
+    administeredBy: document.getElementById('im-by').value,
+    notes: document.getElementById('im-notes').value
+  };
+
+  const btn = document.getElementById('im-save');
+  btn.disabled = true; btn.textContent = 'Saving…';
+  try {
+    if (!State.isDemo) await API.saveInput(updated);
+    const idx = State.inputs.findIndex(i => i.inputId === inputId);
+    if (idx !== -1) State.inputs[idx] = updated;
+    if (!State.productHistory.includes(product)) State.productHistory.push(product);
+    Modal.close();
+    Toast.show(`Input "${product}" updated!`, 'success');
+    renderInputsPage();
+  } catch(e) { Toast.show('Error: ' + e.message, 'error'); btn.disabled = false; btn.textContent = '💾 Update Input'; }
 }
 
 /* =============================================================
@@ -2253,8 +2493,8 @@ function renderRevenueTable() {
     const rowCls = profit>0.2*gross?'row-green':profit<0?'row-red':'row-yellow';
     const mColor = margin>20?'text-green':margin<0?'text-red':'text-amber';
     return `<tr class="${rowCls}">
-      <td><strong>${a.name}</strong></td>
-      <td><span class="text-sm">${animalTypeIcon(group?.animalType||'')} ${group?.groupName||'—'}</span></td>
+      <td><strong>${esc(a.name)}</strong></td>
+      <td><span class="text-sm">${animalTypeIcon(group?.animalType||'')} ${esc(group?.groupName||'—')}</span></td>
       <td><strong>${fmtNum(a.currentWeightKg)}</strong></td>
       <td>${fmtCur(gross)}</td>
       <td>${fmtCur(a.acquisitionCost)}</td>
@@ -2290,14 +2530,14 @@ function renderSalesHistory() {
     const totalCosts = (parseFloat(s.acquisitionCost)||0)+(parseFloat(s.totalInputCostAllocated)||0);
     return `<tr>
       <td>${fmtDate(s.date)}</td>
-      <td><strong>${s.animalName||'—'}</strong></td>
-      <td>${s.groupName||'—'}</td>
+      <td><strong>${esc(s.animalName||'—')}</strong></td>
+      <td>${esc(s.groupName||'—')}</td>
       <td>${fmtNum(s.weightAtSaleKg)}</td>
       <td>${fmtCur(s.pricePerKilo)}/kg</td>
       <td><strong>${fmtCur(s.grossRevenue)}</strong></td>
       <td>${fmtCur(totalCosts)}</td>
       <td class="${netCls} font-bold">${fmtCur(s.netProfit)}</td>
-      <td class="text-muted text-sm">${s.buyerName||'—'}</td>
+      <td class="text-muted text-sm">${esc(s.buyerName||'—')}</td>
     </tr>`;
   }).join('');
 }
@@ -2391,6 +2631,8 @@ async function recordSale() {
   const animalId = document.getElementById('sl-animal').value;
   const weight = parseFloat(document.getElementById('sl-weight').value)||0;
   const price  = parseFloat(document.getElementById('sl-price').value)||0;
+  const saleDate = document.getElementById('sl-date').value;
+  if (!saleDate) { Toast.show('Please enter the date of sale.','error'); return; }
   if (!weight||!price) { Toast.show('Weight and price are required.','error'); return; }
 
   const animal = State.animals.find(a=>a.animalId===animalId);
@@ -2401,7 +2643,7 @@ async function recordSale() {
 
   const sale = {
     saleId: uid(),
-    date: document.getElementById('sl-date').value,
+    date: saleDate,
     animalId, animalName: animal?.name||'', groupName: group?.groupName||'',
     weightAtSaleKg: weight, pricePerKilo: price,
     grossRevenue: gross, acquisitionCost: acqCost,
@@ -2436,7 +2678,7 @@ function renderReportsPage() {
       <button class="btn btn-outline" id="btn-print">🖨️ Print Report</button>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" id="reports-grid">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="responsive-2col" id="reports-grid">
       <div class="card">
         <div class="card-header"><span class="card-title">📊 Cost Breakdown by Type</span></div>
         <div class="card-body"><canvas id="chart-costs" height="220"></canvas></div>
@@ -2468,8 +2710,6 @@ function renderReportsPage() {
       <div class="card-body"><canvas id="chart-monthly" height="200"></canvas></div>
     </div>
   `;
-
-  if (window.innerWidth<700) document.getElementById('reports-grid').style.gridTemplateColumns='1fr';
 
   drawCostChart();
   drawMonthlyChart();
@@ -2606,9 +2846,9 @@ function renderPerformanceTable() {
     const margin=Compute.profitMargin(a);
     const cls=a.status!=='active'?'text-muted':'';
     return `<tr class="${cls}">
-      <td><strong>${a.name}</strong>${a.status!=='active'?` <span class="badge badge-gray">${a.status}</span>`:''}</td>
-      <td>${g?.groupName||'—'}</td>
-      <td>${animalTypeIcon(g?.animalType||'')} ${g?.animalType||'—'}</td>
+      <td><strong>${esc(a.name)}</strong>${a.status!=='active'?` <span class="badge badge-gray">${esc(a.status)}</span>`:''}</td>
+      <td>${esc(g?.groupName||'—')}</td>
+      <td>${animalTypeIcon(g?.animalType||'')} ${esc(g?.animalType||'—')}</td>
       <td>${daysOnFarm(a.dateAcquired)}d</td>
       <td>${(Compute.weightGain(a)>=0?'+':'')}${fmtNum(Compute.weightGain(a))} kg</td>
       <td>${fmtCur(totalCost)}</td>
@@ -2631,7 +2871,7 @@ function renderSettingsPage() {
       <div><div class="section-title">Settings</div></div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="responsive-2col">
       <div class="card">
         <div class="card-header"><span class="card-title">🏡 Business Information</span></div>
         <div class="card-body" style="display:flex;flex-direction:column;gap:14px">
@@ -2659,9 +2899,7 @@ function renderSettingsPage() {
       </div>
     </div>
 
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-      <div class="card">
-        <div class="card-header"><span class="card-title">📥 Data Management</span></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px" class="responsive-2col">
         <div class="card-body" style="display:flex;flex-direction:column;gap:12px">
           <button class="btn btn-outline" id="btn-export">📤 Export Data (JSON)</button>
           <div class="form-group">
@@ -2697,10 +2935,6 @@ function renderSettingsPage() {
     </div>
   `;
 
-  if (window.innerWidth<700) {
-    document.querySelectorAll('#content-area > div[style*="grid-template-columns:1fr 1fr"]').forEach(el=>el.style.gridTemplateColumns='1fr');
-  }
-
   document.getElementById('btn-save-settings').addEventListener('click', saveSettings);
   document.getElementById('btn-save-url').addEventListener('click', () => {
     State.settings.appsScriptUrl = document.getElementById('s-url').value.trim();
@@ -2720,7 +2954,11 @@ function renderSettingsPage() {
       State.isConnected=true;
       updateConnStatus();
     } catch(e) {
-      res.innerHTML=`<span style="color:var(--red-600)">❌ Failed: ${e.message}</span>`;
+      const errEl = document.createElement('span');
+      errEl.style.color = 'var(--red-600)';
+      errEl.textContent = '❌ Failed: ' + e.message;
+      res.innerHTML = '';
+      res.appendChild(errEl);
     }
   });
 
@@ -2764,11 +3002,17 @@ async function saveSettings() {
   Object.assign(State.settings, s);
   localStorage.setItem('lp_settings', JSON.stringify(s));
   localStorage.setItem('lp_script_url', s.appsScriptUrl);
-  if (!State.isDemo && s.appsScriptUrl) {
-    try { await API.saveSettings(s); } catch(e) { Toast.show('Saved locally. Cloud sync failed.','warning'); return; }
-  }
   updateSidebarMeta();
-  Toast.show('Settings saved!','success');
+  if (!State.isDemo && s.appsScriptUrl) {
+    try {
+      await API.saveSettings(s);
+      Toast.show('Settings saved!', 'success');
+    } catch(e) {
+      Toast.show('Saved locally. Cloud sync failed.', 'warning');
+    }
+  } else {
+    Toast.show('Settings saved!', 'success');
+  }
 }
 
 /* =============================================================
